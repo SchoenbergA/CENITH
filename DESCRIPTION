@@ -5,7 +5,7 @@ Authors@R:
     person(given = "Andreas",
            family = "Schönberg",
            role = c("aut", "cre"),
-           email = "Schoenb4@stundents.uni-marburg.de"
+           email = "Schoenb4@stundents.uni-marburg.de")
 Description: Tool for automated segmentation of elevation models.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
