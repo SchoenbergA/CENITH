@@ -1,9 +1,9 @@
 
 # CENITH
-❮img src= "/cenith.png" width="100" ❯
 
+<img src="cenith.png" alt="drawing" width="200">
 
-
+<img src="cenith.png" alt="drawing" width="200" style="float:right">
 
 ## Installation
 
