@@ -8,10 +8,10 @@ The goal of CENITH is to ...
 
 ## Installation
 
-You can install the released version of CENITH from [CRAN](https://CRAN.R-project.org) with:
+Install via devtools from github:
 
 ``` r
-install.packages("CENITH")
+devtools::install_github("SchoenbergA/CENITH")
 ```
 
 ## Example
