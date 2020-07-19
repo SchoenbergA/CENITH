@@ -1,13 +1,12 @@
 Package: CENITH
-Title: What the Package Does (One Line, Title Case)
+Title: Segmentation tool
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Andreas",
+           family = "Schönberg",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           email = "Schoenb4@stundents.uni-marburg.de"
+Description: Tool for automated segmentation of elevation models.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
 Encoding: UTF-8
