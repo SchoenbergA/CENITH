@@ -1,5 +1,5 @@
 
-<img src="cenith.png" alt="drawing" width="300">
+<img align="right" src="cenith.png" alt="drawing" width="350">
 
 
 ## Installation
