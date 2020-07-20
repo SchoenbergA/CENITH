@@ -232,5 +232,5 @@ TreeSeg <- function(chm=NULL,a,b,h){
                            minTreeAlt = h,
                            verbose = TRUE)
 
-
+  return(list(tpos,seg))
 }#end of main function

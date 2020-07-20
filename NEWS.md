@@ -1,3 +1,9 @@
+# CENITH 0.0.0.91
+
+* changes for development
+TreeSeg - now returns Treepos + segments
+BestSegVal - now computes more and other validation results
+
 # CENITH 0.0.0.9000
 initial version
 

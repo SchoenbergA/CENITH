@@ -79,32 +79,49 @@ BestSegVal<- function(chm,a,b,h,vp){
                                     cat(paste0("iterating over b ",as.factor(j),"/",as.factor(length(b))," ",sep = "\n"))
                                   # TreeSeg
                                   seg <- TreeSeg(chm=chm,a,b[j],h)
+                                  # unlist
+                                  seg<-seg[[2]]
+
+                                  ### save results in dataframe################################
 
                                   # get stats of overlapping
                                   stat <- ForestTools::sp_summarise(vp, seg) # compute data points in polygons
                                   stat[is.na(stat$TreeCount)] <- 0 # na to 0
 
+                                  # get n trees in poygons
+                                  TC0 <- sum(stat$TreeCount<1) # amount polygon without any tree (miss)
+                                  TC1 <- sum(stat$TreeCount==1) # amount polygon with exact 1 tree (hit)
+                                  TC2 <- sum(stat$TreeCount==2) # amount polygon with 2 Trees (miss)
+                                  TC3 <- sum(stat$TreeCount==3) # amount polygon with 3 Trees (miss)
+                                  TCX <- sum(stat$TreeCount>3)  # amount polygon more tha 3 Trees (miss)
 
-                                  pkb <- sum(stat$TreeCount<1) # amount polygon without tree (miss)
-                                  pb <- sum(stat$TreeCount==1) # amount polygon with exact 1 tree (hit)
-                                  pmb <-sum(stat$TreeCount>1) # amount polygon with more than 1 tree (miss)
+                                  # calculate validation scores
+                                  # absolute
+                                  hit = paste(TC1,"/",length(vp))
 
-                                  hit = pb/length(stat$TreeCount) # calc hit ration in percent (amount of exact trees
-                                  over = pkb/length(stat$TreeCount) #calc empty ration in percent (amount of polygon without trees)
-                                  under = pmb/length(stat$TreeCount) # mis.rati (or jan error) miss rate in percent (amount of polygons with more than 1 Tree)
-                                  ntree_vp = length(seg)/length(vp)
-                                  area =  sum(seg$crownArea)
+                                  # rates
+                                  hitrate = TC1/length(stat$TreeCount)        # hits / seg amount of hits in relation to nseg
+                                  empt = TC0/length(stat$TreeCount)           # empty/seg amount of empty segs in relation to nseg
+                                  over = (TC2+TC3+TCX)/length(stat$TreeCount) # over / seg amount of segs with more than 1 Tree in relation to nseg
+
+                                          # additional informations
+                                          area =  sum(seg$crownArea)#
 
                                   # write out informations in dataframe
                                   result[j, 1] <- a
                                   result[j, 2] <- b[j]
                                   result[j, 3] <- h
-                                  result[j, 4] <- hit
-                                  result[j, 5] <- ntree_vp
-                                  result[j, 6] <- paste(length(seg),"/",length(vp))
-                                  result[j, 7] <- over
-                                  result[j, 8] <- area
-                                  result[j, 9] <- under
+                                        #absolut results
+                                        result[j, 4] <- hit
+                                        result[j, 5] <- TC0
+                                        result[j, 6] <- TC2
+                                        result[j, 7] <- TC3
+                                        result[j, 8] <- TCX
+                                              # rates
+                                               result[j, 9] <- hitrate
+                                               result[j, 10] <- empt
+                                               result[j, 11] <- over
+                                               result[j, 12] <- area
 
                                   }
                                     # output
@@ -153,6 +170,7 @@ BestSegVal<- function(chm,a,b,h,vp){
   cat("",sep = "\n")
 cat(paste0("### Cenith finsihed Segmentation ###"),sep = "\n")
 
-names(res)<- c("a","b","height","hit","tp/vp_rate","tpos/vp","miss","area","empty")
+names(res)<- c("a","b","height","asb_hit/vp","abs_emp","abs_over2","abs_over3","abs_overX","hitrate","emptyrate","overrate","area")
+#names(res)<- c("a","b","height","hit","tp/vp_rate","tpos/vp","miss","area","empty")
 return(res)
 }# end core fucntion
