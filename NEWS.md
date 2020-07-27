@@ -1,3 +1,10 @@
+# Cenith 0.0.0.93
+Update
+
+* updated features
+BestSegValBETA - deleted older check for to high values. To estimate the time to target now up to 3 random iterations are used to sto time. if all 3 fail the function stops. added example with 3/4 iterations to fail.
+*TreeSeg -  added MIN MAX from BestSegValBETA to basic Segmentation function. Crops polygons < MIN / >MAX
+
 # CENITH 0.0.0.92
 * development version for Validation of Segments
 

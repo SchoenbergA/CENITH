@@ -4,6 +4,8 @@
 #' @param a numeric - function for MovingWindow
 #' @param b numeric - function for MovingWindow
 #' @param h numeric - maximum height of Trees
+#' @param MIN numeric - minimum area for Crowns. smaller poylgons are cropped
+#' @param MAX numeric - maximum area for Crowns. larger polygons are cropped
 #' @return returns a PolygonLayer with segments
 #' @details uses a Moving Window x*a+b to detetc local Maxima in a chm to compute TreeCrown Segments
 #' * parameter selection - use BestSegVal to automated detect best fitting parameters for a,b,h.
@@ -21,7 +23,7 @@
 #' @export TreeSeg
 #' @aliases TreeSeg
 
-TreeSeg <- function(chm=NULL,a,b,h){
+TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000){
   # function ForestTools vwf cleaned from cat code #############################
   vwf_clean <-function (CHM, winFun, minHeight = NULL, maxWinDiameter = 99,
                               minWinNeib = "queen", verbose = FALSE)
@@ -232,5 +234,10 @@ TreeSeg <- function(chm=NULL,a,b,h){
                            minTreeAlt = h,
                            verbose = TRUE)
 
-  return(list(tpos,seg))
+  # clip min and max
+  seg_min <- seg[seg$crownArea>MIN,]
+  seg_max <- seg_min[seg_min$crownArea<MAX,]
+  seg <- seg_max
+
+  return(seg)
 }#end of main function

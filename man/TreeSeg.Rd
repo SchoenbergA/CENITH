@@ -4,7 +4,7 @@
 \alias{TreeSeg}
 \title{Compute TreeCrown Segments}
 \usage{
-TreeSeg(chm = NULL, a, b, h)
+TreeSeg(chm = NULL, a, b, h, MIN = 0, MAX = 1000)
 }
 \arguments{
 \item{chm}{raster - RasterLayer with Canopy height model}
@@ -14,6 +14,10 @@ TreeSeg(chm = NULL, a, b, h)
 \item{b}{numeric - function for MovingWindow}
 
 \item{h}{numeric - maximum height of Trees}
+
+\item{MIN}{numeric - minimum area for Crowns. smaller poylgons are cropped}
+
+\item{MAX}{numeric - maximum area for Crowns. larger polygons are cropped}
 }
 \value{
 returns a PolygonLayer with segments

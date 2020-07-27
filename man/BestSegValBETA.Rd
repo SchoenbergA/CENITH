@@ -4,7 +4,7 @@
 \alias{BestSegValBETA}
 \title{BETA Detect best input variables for TreeSegmentation by validation points}
 \usage{
-BestSegValBETA(chm, a, b, h, vp, MIN, MAX, skipCheck = FALSE)
+BestSegValBETA(chm, a, b, h, vp, MIN = 0, MAX = 1000, skipCheck = FALSE)
 }
 \arguments{
 \item{chm}{raster - RasterLayer with Canopy height model}
@@ -50,6 +50,9 @@ x <-BestSegValBETA(chm,seq(0.7,0.8,0.1),seq(0.5,0.7,0.1),c(13,8),vp)
 maxrow <- x[which.max(x$hit),] # search max vale but rturn only 1 value
 maxhit <- maxrow$hit
 x[which(x$hit==maxhit),]
+# test error causing values
+test1 <-BestSegValBETA(chm=chm,a=c(0.9,0.91,0.92,0.1),b=0.5,h=1,vp=vp,MIN = 40,MAX = 200,skipCheck = FALSE)
+# if the function stops, retry.
 }
 \author{
 Andreas Schönberg

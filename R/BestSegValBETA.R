@@ -28,12 +28,15 @@
 #' maxrow <- x[which.max(x$hit),] # search max vale but rturn only 1 value
 #' maxhit <- maxrow$hit
 #' x[which(x$hit==maxhit),]
+#' # test error causing values
+#' test1 <-BestSegValBETA(chm=chm,a=c(0.9,0.91,0.92,0.1),b=0.5,h=1,vp=vp,MIN = 40,MAX = 200,skipCheck = FALSE)
+#' # if the function stops, retry.
 
 #' @export BestSegValBETA
 #' @aliases BestSegValBETA
 
 
-BestSegValBETA<- function(chm,a,b,h,vp,MIN,MAX,skipCheck=FALSE){
+BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
   if(skipCheck==FALSE){
   cat(paste0("### Cenith checking input ###",sep = "\n"))
   #checking projection
@@ -44,20 +47,38 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN,MAX,skipCheck=FALSE){
   if(cellStats(chm,max)<=max(h)){
     stop("input height 'h' values are higher than the highest cell value of teh CHM")
   }
-  # check if values in a and or b are to big, and save time needed
+  # estimate time remaining, trying up to tree iterations, if all fail, skipping time estimation
+    cat("",sep = "\n")
+    cat(paste0("### Cenith calculates estimate time to finish ###",sep = "\n"))
+    cat("",sep = "\n")
   start <- Sys.time()
-  maxTest <-try(ForestTools::vwf(chm,
-                                 winFun = function(x){x * max(a) + max(b)},
-                                 minHeight = max(h),
+  ETA1 <-try(ForestTools::vwf(chm,
+                                 winFun = function(x){x * sample(a,1) + sample(b,1)},
+                                 minHeight = sample(h,1),
                                  verbose = TRUE),silent = TRUE)
-  stop  <- Sys.time()
-  if(class(maxTest)=="try-error"){
-    stop("any input values for 'a' and or 'b' lead to wider window diameter. Reduce Values! ")
-  }
-  cat("",sep = "\n")
-  cat(paste0("### Cenith calculates estimate time to finish ###",sep = "\n"))
-  cat("",sep = "\n")
-  # estimate time remaining
+      stop  <- Sys.time()
+              if(class(ETA1)=="try-error"){
+                start <- Sys.time()
+                ETA2 <-try(ForestTools::vwf(chm,
+                                               winFun = function(x){x * sample(a,1) + sample(b,1)},
+                                               minHeight = sample(h,1),
+                                               verbose = TRUE),silent = TRUE)
+                stop  <- Sys.time()
+                if(class(ETA2)=="try-error"){
+                  start <- Sys.time()
+                  ETA3 <-try(ForestTools::vwf(chm,
+                                              winFun = function(x){x * sample(a,1) + sample(b,1)},
+                                              minHeight = sample(h,1),
+                                              verbose = TRUE),silent = TRUE)
+                  stop  <- Sys.time()
+                  if(class(ETA2)=="try-error"){
+                    stop("unable to calculate ETA, tried 3 random iterations, skipping.")}
+                }
+              }
+
+
+
+
   # amount of iterations
   na <- length(a)
   nb <- length(b)
@@ -109,8 +130,6 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN,MAX,skipCheck=FALSE){
 
       } # if error
       else{
-      # unlist
-      seg<-seg[[2]]
 
       # clip min and max
       seg_min <- seg[seg$crownArea>MIN,]
