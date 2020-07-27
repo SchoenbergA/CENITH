@@ -1,3 +1,9 @@
+# CENITH 0.0.0.92
+* development version for Validation of Segments
+
+* new feature
+BestSegValBETA - development verison contains error catching
+
 # CENITH 0.0.0.91
 
 * changes for development
