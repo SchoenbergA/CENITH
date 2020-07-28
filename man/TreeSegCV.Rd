@@ -35,6 +35,14 @@ cs
 \item a,b,h,MIN,MAX values should be calculated by 'TreeSegVal'
 }
 }
+\examples{
+# load chm sides and vp layers
+# list all chm and vp in seperated list
+sides <-list(chm1,chm2,chm3)
+vps <-list(vp1,vp2,vp3)
+# start CV with model (a,b,h,MIN,MAX Values)
+x <- TreeSegCV(sides,a,b,h,MIN,MAX,vps)
+}
 \author{
 Andreas Schönberg
 }

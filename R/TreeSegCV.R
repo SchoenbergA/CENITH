@@ -13,7 +13,7 @@
 #' *'sides' and 'vps' must be lists with same order of chm and respectiv validtion points
 #' * a,b,h,MIN,MAX values should be calculated by 'TreeSegVal'
 #' @author Andreas Schönberg
-#' @example
+#' @examples
 #' # load chm sides and vp layers
 #' # list all chm and vp in seperated list
 #' sides <-list(chm1,chm2,chm3)
