@@ -177,7 +177,7 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
       result[j, 9] <- hitrate
       result[j, 10] <- under
       result[j, 11] <- over
-      result[j, 11] <- segQy
+      result[j, 12] <- segQy
                 } # end of more than null polygons
 
 
