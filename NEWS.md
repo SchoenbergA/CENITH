@@ -1,3 +1,11 @@
+# CENITH 0.0.0.94
+Update for MIN and MAX
+
+* added features
+TreeSeg -  Now returns Error, if after clipping no Segments are left. This is used to handle MIN and MAX in TreeSegVal.
+TreeSegVal - now uses MIN and MAX in TreeSeg
+           - improved results, including hit, oversegmentation and undersegmentation rates and absolut values.
+
 # Cenith 0.0.0.93
 Update
 

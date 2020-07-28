@@ -238,6 +238,7 @@ TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000){
   seg_min <- seg[seg$crownArea>MIN,]
   seg_max <- seg_min[seg_min$crownArea<MAX,]
   seg <- seg_max
-
+  if(length(seg)==0){
+    stop(" !!! after cliping to MIN and MAX no polygons are returned, setting results to NA",sep = "\n")}
   return(seg)
 }#end of main function

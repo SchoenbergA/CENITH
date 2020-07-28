@@ -108,7 +108,7 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
 
       cat(paste0("iterating over b ",as.factor(j),"/",as.factor(length(b))," ",sep = "\n"))
       # TreeSeg
-      seg <- try(TreeSeg(chm=chm,a,b[j],h),silent = TRUE)
+      seg <- try(TreeSeg(chm=chm,a,b[j],h,MIN,MAX),silent = TRUE)
                       # handle error catch
                       if(class(seg)=="try-error"){
                         cat(paste0(" !!! iteration a=",a," b=",b[j]," h=",h," leads to an error, setting to 'NA' in results ",sep="\n"))
@@ -131,32 +131,7 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
       } # if error
       else{
 
-      # clip min and max
-      seg_min <- seg[seg$crownArea>MIN,]
 
-
-      seg_max <- seg_min[seg_min$crownArea<MAX,]
-
-      seg <- seg_max
-      # handle if seg contians NO trees left
-                if(length(seg)==0){
-                  cat(" !!! after cliiping to MIN and MAX no polygons are returned, setting results to NA",sep = "\n")
-                  result[j, 1] <- a
-                  result[j, 2] <- b[j]
-                  result[j, 3] <- h
-                  #absolut results
-                  result[j, 4] <- NA
-                  result[j, 5] <- NA
-                  result[j, 6] <- NA
-                  result[j, 7] <- NA
-                  result[j, 8] <- NA
-                  # rates
-                  result[j, 9]  <- NA
-                  result[j, 10] <- NA
-                  result[j, 11] <- NA
-                  result[j, 12] <- NA
-                  result[j, 13] <- NA
-                } else {
       ### save results in dataframe################################
 
       # get stats of overlapping
@@ -164,8 +139,9 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
       stat[is.na(stat$TreeCount)] <- 0 # na to 0
 
       # get n trees in poygons
-      TC0 <- sum(stat$TreeCount<1) # amount polygon without any tree (miss)
+      TCO <- sum(stat$TreeCount<1) # amount polygon without any tree (miss) <- Oversegmented
       TC1 <- sum(stat$TreeCount==1) # amount polygon with exact 1 tree (hit)
+      TCU <- sum(stat$TreeCount>1) # amount polygons with more than 1 tree (miss) <- Undersegmented
       TC2 <- sum(stat$TreeCount==2) # amount polygon with 2 Trees (miss)
       TC3 <- sum(stat$TreeCount==3) # amount polygon with 3 Trees (miss)
       TCX <- sum(stat$TreeCount>3)  # amount polygon more tha 3 Trees (miss)
@@ -176,8 +152,8 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
 
       # rates
       hitrate = TC1/length(vp)        # hits / seg amount of hits in relation to nseg
-      empt = TC0/length(stat$TreeCount)           # empty/seg amount of empty segs in relation to nseg
-      over = (TC2+TC3+TCX)/length(stat$TreeCount) # over / seg amount of segs with more than 1 Tree in relation to nseg
+      over = TCO/length(stat$TreeCount)           # oversegmented, Segnents with no VP
+      under = TCU/length(stat$TreeCount) # undersegmented, Segments with more than one tree
 
       # additional informations
       tseg = length(seg)
@@ -188,19 +164,17 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
       result[j, 2] <- b[j]
       result[j, 3] <- h
       #absolut results
-      result[j, 4] <- hit
-      result[j, 5] <- TC0
-      result[j, 6] <- TC2
-      result[j, 7] <- TC3
-      result[j, 8] <- TCX
+      result[j, 4] <- tseg
+      result[j, 5] <- hit
+      result[j, 6] <- TCU
+      result[j, 7] <- TCO
+      result[j, 8] <- area
       # rates
       result[j, 9] <- hitrate
-      result[j, 10] <- empt
+      result[j, 10] <- under
       result[j, 11] <- over
-      result[j, 12] <- area
-      result[j, 13] <- tseg
                 } # end of more than null polygons
-      }# end if no error
+
 
     }# end loop for b
     # output
@@ -249,7 +223,7 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
   cat("",sep = "\n")
   cat(paste0("### Cenith finsihed Segmentation ###"),sep = "\n")
 
-  names(res)<- c("a","b","height","asb_hit/vp","abs_emp","abs_over2","abs_over3","abs_overX","hitrate","emptyrate","overrate","area","total_seg")
+  names(res)<- c("a","b","height","total_seg","hit/vp","under","over","area","hitrate","underrate","overrate")
   #names(res)<- c("a","b","height","hit","tp/vp_rate","tpos/vp","miss","area","empty")
   return(res)
 }# end core fucntion
