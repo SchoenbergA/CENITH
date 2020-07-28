@@ -1,3 +1,10 @@
+# CENITH 0.0.0.95
+* bugfixes
+TreeSegVal returns correct values for "Segment quality"
+
+* new features
+TreeSegCV - function to perform an n fold cross validation. Uses values (estimated with TreeSegVal recommended) to test the quality on other sides to receive a quality estimation of the inout values for the Segmentation in the AOI.
+
 # CENITH 0.0.0.94
 Update for MIN and MAX
 
