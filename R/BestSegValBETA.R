@@ -126,7 +126,7 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
                         result[j, 10] <- NA
                         result[j, 11] <- NA
                         result[j, 12] <- NA
-                        result[j, 13] <- NA
+
 
       } # if error
       else{
@@ -155,6 +155,10 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
       over = TCO/length(stat$TreeCount)           # oversegmented, Segnents with no VP
       under = TCU/length(stat$TreeCount) # undersegmented, Segments with more than one tree
 
+          # quality value calculation
+          miss <- (over+(2*under))/2
+          segQy <- paste0(round(hitrate,2)," @ ",round(miss,2))
+          segQy
       # additional informations
       tseg = length(seg)
       area =  sum(seg$crownArea)#
@@ -173,6 +177,7 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
       result[j, 9] <- hitrate
       result[j, 10] <- under
       result[j, 11] <- over
+      result[j, 11] <- segQy
                 } # end of more than null polygons
 
 
@@ -223,7 +228,7 @@ BestSegValBETA<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE){
   cat("",sep = "\n")
   cat(paste0("### Cenith finsihed Segmentation ###"),sep = "\n")
 
-  names(res)<- c("a","b","height","total_seg","hit/vp","under","over","area","hitrate","underrate","overrate")
+  names(res)<- c("a","b","height","total_seg","hit/vp","under","over","area","hitrate","underrate","overrate","Seg_qualy")
   #names(res)<- c("a","b","height","hit","tp/vp_rate","tpos/vp","miss","area","empty")
   return(res)
 }# end core fucntion
