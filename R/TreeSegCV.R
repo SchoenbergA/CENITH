@@ -87,6 +87,11 @@ TreeSegCV <- function(sides,a,b,h,MIN,MAX,vps){
       over = TCO/length(stat$TreeCount)           # oversegmented, Segnents with no VP
       under = TCU/length(stat$TreeCount) # undersegmented, Segments with more than one tree
 
+      # quality value calculation
+      miss <- (over+(2*under))/2
+      segQy <- paste0(round(hitrate,2)," @ ",round(miss,2))
+      segQy
+
       # additional informations
       tseg = length(seg)
       area =  sum(seg$crownArea)#
@@ -98,15 +103,16 @@ TreeSegCV <- function(sides,a,b,h,MIN,MAX,vps){
       result[i, 4] <- h
       #absolut results
       result[i, 5] <- tseg
-      result[i, 6] <- hit
-      result[i, 7] <- TCU
-      result[i, 8] <- TCO
-      result[i, 9] <- area
+      result[i, 6] <- TC1
+      result[i, 7] <- length(vps[[i]])
+      result[i, 8] <- TCU
+      result[i, 9] <- TCO
+      result[i, 10] <- area
       # rates
-      result[i, 10] <- hitrate
-      result[i, 11] <- under
-      result[i, 12] <- over
-      result[i, 13] <- segQy
+      result[i, 11] <- hitrate
+      result[i, 12] <- under
+      result[i, 13] <- over
+      result[i, 14] <- segQy
     } # end of more than null polygons
             # handle df
             if(i==1){
@@ -120,25 +126,29 @@ TreeSegCV <- function(sides,a,b,h,MIN,MAX,vps){
   }# end of iteration
 
   # calc means
-  res
-  nrow(res)+1
+
   # write out informations in dataframe
+  names(res)<- c("sides","a","b","height","total_seg","hit","vp","under","over","area","hitrate","underrate","overrate","Seg_qualy")
   res[nrow(res)+1, 1] <- "Mean"
-  res[nrow(res)+1, 2] <- a
-  res[nrow(res)+1, 3] <- b
-  res[nrow(res)+1, 4] <- h
+  res[nrow(res), 2] <- a
+  res[nrow(res), 3] <- b
+  res[nrow(res), 4] <- h
   #abolut results
-  res[nrow(res)+1, 5] <- mean(res$tseg)
-  res[nrow(res)+1, 6] <- mean(res$hit)
-  res[nrow(res)+1, 7] <- mean(res$TCU)
-  res[nrow(res)+1, 8] <- mean(res$TCO)
-  res[nrow(res)+1, 9] <- mean(res$area)
+  res[nrow(res), 5] <- mean(res[1:nrow(res)-1,5])
+  res[nrow(res), 6] <- mean(res[1:nrow(res)-1,6])
+  res[nrow(res), 7] <- mean(res[1:nrow(res)-1,7])
+  res[nrow(res), 8] <- mean(res[1:nrow(res)-1,8])
+  res[nrow(res), 9] <- mean(res[1:nrow(res)-1,9])
   # rates
-  res[nrow(res)+1, 10]  <-  mean(res$hitrate)
-  res[nrow(res)+1, 11] <-  mean(res$under)
-  res[nrow(res)+1, 12] <-  mean(res$over)
-  res[nrow(res)+1, 13] <- (mean(res$TCO)+ 2* mean(res$TCU))/2
-  names(res)<- c("sides","a","b","height","total_seg","hit/vp","under","over","area","hitrate","underrate","overrate","Seg_qualy")
+  res[nrow(res), 10]  <- mean(res[1:nrow(res)-1,10])
+  res[nrow(res), 11] <-  mean(res[1:nrow(res)-1,11])
+  res[nrow(res), 12] <-  mean(res[1:nrow(res)-1,12])
+  res[nrow(res), 13] <-  mean(res[1:nrow(res)-1,13])
+  res[nrow(res), 14] <- paste0(round(mean(res[1:nrow(res)-1,11]),2),
+                               " @ ",
+                               round(
+                                (mean(res[1:nrow(res)-1,13])+ 2* mean(res[1:nrow(res)-1,12]))/2
+                                     ,2))
   return(res)
 }# end of function
 
