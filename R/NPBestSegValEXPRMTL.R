@@ -1,4 +1,4 @@
-#' EXPRMTL Detect best input variables for TreeSegmentation by validation points
+#' NOPAR EXPRMTL Detect best input variables for TreeSegmentation by validation points
 #' @description Experimantal Version of BestSegVal. Iterates over a,b,h,MIN and supports iterating over filtered chms.uses supervised computed Treepositions to validate best fitting values for a,b and height.
 #' @param chm raster - RasterLayer with Canopy height model
 #' @param a numeric - function for MovingWindow
@@ -9,7 +9,7 @@
 #' @param MAX numeric - maximum area for Crowns. larger polygons are cropped
 #' @param skipCheck development - bolean - if TRUE skips chekcing the inputs
 #' @param filter numeric values for the moving window, must be odd
-#' @param Cores numeric value - amount of cores to keep out of parallising. Default=1 (save to keep R running)
+
 #' @return returns a dataframe with several validation scores
 #' @details
 #' * if 'skipCheck' = TRUE the input checking is skipped and the itrations starts directly.
@@ -27,21 +27,30 @@
 #' plot(chm)
 #' vppath <-system.file("extdata","exp_vp.shp",package = "CENITH")
 #' vp <- rgdal::readOGR(vppath)
-#' # test new featrues iterating over MIN and filter
-#' x <-BestSegValEXPRMTL(chm,a=0.5,b=0.5,h=0.5,vp,MIN=c(10,30,50),MAX=1000,filter=c(1,3,5))
-#' # view best accuracy (diffenrent iterations can have the same hit rate, but differ in other values)
-#' maxrow <- x[which.max(x$hit),] # search max vale but rturn only 1 value
-#' maxhit <- maxrow$hit
-#' x[which(x$hit==maxhit),]
-#' # test error causing values
-#' test1 <-BestSegValBETA(chm=chm,a=c(0.9,0.91,0.92,0.1),b=0.5,h=1,vp=vp,MIN = 40,MAX = 200,skipCheck = FALSE)
-#' # if the function stops, retry.
+#' # lab test if doParalel works
+#' # make sure no open cluster are running
+#' stopCluster()
+#' # 1st test without doPar
+#' start1 <- Sys.time()
+#' np <-NPBestSegValEXPRMTL(chm,a=c(0.1,0.3,0.5),b=c(0.1,0.3,0.5),h=0.5,vp,MIN=c(10,30,50),MAX=1000,filter=c(1,3,5))
+#' stop1 <- Sys.time()
+#' # 2nd test with doPar full cores
+#' start2 <- Sys.time()
+#' fc <-BestSegValEXPRMTL(chm,a=c(0.1,0.3,0.5),b=c(0.1,0.3,0.5),h=0.5,vp,MIN=c(10,30,50),MAX=1000,filter=c(1,3,5),Cores=1)
+#' stop2 <- Sys.time()
+#' # 3rd test with doPar but lesser cores (3)
+#' start3 <- Sys.time()
+#' x1 <-BestSegValEXPRMTL(chm,a=c(0.1,0.3,0.5),b=0.5,h=0.5,vp,MIN=c(10,30,50),MAX=1000,filter=c(1,3,5),Cores=5)
+#' stop3 <- Sys.time()
+#' # check time differences
+#' difftime(start1,stop1) # no Par
+#' difftime(start2,stop2) # full cores
+#' difftime(start3,stop3) # 3 cores (if 8 availibe)
+#' @export NPBestSegValEXPRMTL
+#' @aliases NPBestSegValEXPRMTL
 
-#' @export BestSegValEXPRMTL
-#' @aliases BestSegValEXPRMTL
 
-
-BestSegValEXPRMTL<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=NULL,Cores=1){
+NPBestSegValEXPRMTL<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=NULL){
   if(skipCheck==FALSE){
     cat(paste0("### Cenith checking input ###",sep = "\n"))
     #check for wrong sizes input
@@ -236,45 +245,43 @@ BestSegValEXPRMTL<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=
 
 
 
-                              # iteration h
-                              loop_h <- function(chm,a,b,h,vp,MIN,MAX){
-                              for (c in seq(1:length(h))){
-                                cat("",sep = "\n")
-                                cat(paste0("### Cenith starts iterating over h ",as.factor(c),"/",as.factor(length(h))," ###",sep = "\n"))
-                                if(c==1){
-                                  res <-loop_a(chm,a,b,h[c],vp,MIN,MAX)
-                                }    else {
-                                  res2 <-loop_a(chm,a,b,h[c],vp,MIN,MAX)
-                                  res= rbind(res,res2)}
+  # iteration h
+  loop_h <- function(chm,a,b,h,vp,MIN,MAX){
+    for (c in seq(1:length(h))){
+      cat("",sep = "\n")
+      cat(paste0("### Cenith starts iterating over h ",as.factor(c),"/",as.factor(length(h))," ###",sep = "\n"))
+      if(c==1){
+        res <-loop_a(chm,a,b,h[c],vp,MIN,MAX)
+      }    else {
+        res2 <-loop_a(chm,a,b,h[c],vp,MIN,MAX)
+        res= rbind(res,res2)}
 
-                              }# end loop h
-                                return(res)
-                              }# end iteration h
+    }# end loop h
+    return(res)
+  }# end iteration h
 
-                                              # iteration h
-                                              loop_MIN <- function(chm,a,b,h,vp,MIN,MAX){
-                                                for (k in seq(1:length(MIN))){
-                                                  cat("",sep = "\n")
-                                                  cat(paste0("### Cenith starts iterating over MIN ",as.factor(k),"/",as.factor(length(MIN))," ###",sep = "\n"))
-                                                  if(k==1){
-                                                    res <-loop_h(chm,a,b,h,vp,MIN[k],MAX)
-                                                  }    else {
-                                                    res2 <-loop_h(chm,a,b,h,vp,MIN[k],MAX)
-                                                    res= rbind(res,res2)}
+  # iteration h
+  loop_MIN <- function(chm,a,b,h,vp,MIN,MAX){
+    for (k in seq(1:length(MIN))){
+      cat("",sep = "\n")
+      cat(paste0("### Cenith starts iterating over MIN ",as.factor(k),"/",as.factor(length(MIN))," ###",sep = "\n"))
+      if(k==1){
+        res <-loop_h(chm,a,b,h,vp,MIN[k],MAX)
+      }    else {
+        res2 <-loop_h(chm,a,b,h,vp,MIN[k],MAX)
+        res= rbind(res,res2)}
 
-                                                }# end loop h
-                                                return(res)
-                                              }# end iteration h
+    }# end loop h
+    return(res)
+  }# end iteration h
 
 
 
 
 
   # BestSeg Core
-                                              # prepare Cores
-                                              cl =  makeCluster(detectCores()-Cores)
-                                              cat(paste("### Cenith using",length(cl),"of",length(cl)+Cores,"availible Cores"))
-                                              registerDoParallel(cl)
+
+
   for(l in seq(1:length(filter))){
     cat("",sep = "\n")
     cat(paste0("### Cenith starts iterating over CHM ",as.factor(l)),"/",(length(filter))," ###")
@@ -284,9 +291,9 @@ BestSegValEXPRMTL<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=
       if(filter[l]==1){
         res <-loop_MIN(chm,a,b,h,vp,MIN,MAX)
       } else {
-      chmf <- raster::focal(chm,w=matrix(1/(filter[l]*filter[l]),nrow=filter[l],ncol=filter[l]),fun=sum,na.rm=TRUE)
-      names(chmf) <- paste0(names(chm),"_",as.factor(filter[l]))
-      res <-loop_MIN(chmf,a,b,h,vp,MIN,MAX)
+        chmf <- raster::focal(chm,w=matrix(1/(filter[l]*filter[l]),nrow=filter[l],ncol=filter[l]),fun=sum,na.rm=TRUE)
+        names(chmf) <- paste0(names(chm),"_",as.factor(filter[l]))
+        res <-loop_MIN(chmf,a,b,h,vp,MIN,MAX)
       }
     }    else {
       chmf <- raster::focal(chm,w=matrix(1/(filter[l]*filter[l]),nrow=filter[l],ncol=filter[l]),fun=sum,na.rm=TRUE)
@@ -296,7 +303,7 @@ BestSegValEXPRMTL<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=
 
   }# end core function
 
-                                              stopCluster(cl)
+
   # output
   cat("",sep = "\n")
   cat(paste0("### Cenith finsihed Segmentation ###"),sep = "\n")
