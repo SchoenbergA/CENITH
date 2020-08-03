@@ -2,5 +2,6 @@
 
 export(BestSegVal)
 export(BestSegValBETA)
+export(BestSegValEXPRMTL)
 export(TreeSeg)
 export(TreeSegCV)

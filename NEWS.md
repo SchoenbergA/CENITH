@@ -1,3 +1,7 @@
+# CENITH 0.0.0.96
+* new features
+TreeSegValEXPRMTL - advanced version of TreeSegVal which additionally iterates over MIN and supports filtering for chm.
+
 # CENITH 0.0.0.95
 * bugfixes
 TreeSegVal returns correct values for "Segment quality"
