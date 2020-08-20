@@ -4,7 +4,16 @@
 \alias{TreeSeg}
 \title{Compute TreeCrown Segments}
 \usage{
-TreeSeg(chm = NULL, a, b, h, MIN = 0, MAX = 1000)
+TreeSeg(
+  chm = NULL,
+  a,
+  b,
+  h,
+  MIN = 0,
+  MAX = 1000,
+  CHMfilter = 1,
+  silent = FALSE
+)
 }
 \arguments{
 \item{chm}{raster - RasterLayer with Canopy height model}
@@ -18,34 +27,46 @@ TreeSeg(chm = NULL, a, b, h, MIN = 0, MAX = 1000)
 \item{MIN}{numeric - minimum area for Crowns. smaller poylgons are cropped}
 
 \item{MAX}{numeric - maximum area for Crowns. larger polygons are cropped}
+
+\item{CHMfilter}{numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd. Default=1 no filtering (see details)}
+
+\item{silent}{bolean - if TRUE the function will not print any progress messages (default=FALSE)}
 }
 \value{
 returns a PolygonLayer with segments
 }
 \description{
-computes polygon segments for TreeCrowns
+computes polygon segments for TreeCrowns based on watershed algorithem
 }
 \details{
 uses a Moving Window x*a+b to detetc local Maxima in a chm to compute TreeCrown Segments
 \itemize{
-\item parameter selection - use BestSegVal to automated detect best fitting parameters for a,b,h.
+\item parameter selection - use BestSegVal to automated detect best fitting parameters for a,b,h,MAX and filter.
+\item filter - uses a sum filter with Moving Window of x, must be odd.
 }
 }
 \note{
-
+'brute force' segmentation with random parameters is not recommended. As it is not to just handsome test parameters. TreeSeg is mainly just to compute segments AFTER validation best fitting parameters with 'TreeSegVal'.
 }
 \examples{
 # load data
-chmpath <-system.file("extdata","exp_chm.tif",package = "CENITH")
+chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 chm <- raster::raster(chmpath)
+# take a look on the data
 plot(chm)
 # start segmentation
-x <- TreeSeg(chm,0.5,0.5,13)
-plot(x)
+x <- TreeSeg(chm,a=0.3,b=0.7,h=13)
+length(x)# amount of trees
+# compare result with chm
+mapview(chm)+x
+# clip min and or max polygons
+y <-TreeSeg(chm,a=0.3,b=0.7,h=13,MIN=10)
+length(y)# amount of trees
+mapview(chm)+y
 }
 \references{
 
 }
 \author{
-
+Andreas Schönberg
 }

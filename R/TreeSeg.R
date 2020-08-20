@@ -1,29 +1,40 @@
 #' Compute TreeCrown Segments
-#' @description computes polygon segments for TreeCrowns
+#' @description computes polygon segments for TreeCrowns based on watershed algorithem
 #' @param chm raster - RasterLayer with Canopy height model
 #' @param a numeric - function for MovingWindow
 #' @param b numeric - function for MovingWindow
 #' @param h numeric - maximum height of Trees
 #' @param MIN numeric - minimum area for Crowns. smaller poylgons are cropped
 #' @param MAX numeric - maximum area for Crowns. larger polygons are cropped
+#' @param CHMfilter numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd. Default=1 no filtering (see details)
+#' @param silent bolean - if TRUE the function will not print any progress messages (default=FALSE)
 #' @return returns a PolygonLayer with segments
 #' @details uses a Moving Window x*a+b to detetc local Maxima in a chm to compute TreeCrown Segments
-#' * parameter selection - use BestSegVal to automated detect best fitting parameters for a,b,h.
-#' @note
-#' @author
+#' * parameter selection - use BestSegVal to automated detect best fitting parameters for a,b,h,MAX and filter.
+#' * filter - uses a sum filter with Moving Window of x, must be odd.
+#' @note 'brute force' segmentation with random parameters is not recommended. As it is not to just handsome test parameters. TreeSeg is mainly just to compute segments AFTER validation best fitting parameters with 'TreeSegVal'.
+#'
+#' @author Andreas Schönberg
 #' @references
 #' @examples
 #' # load data
-#' chmpath <-system.file("extdata","exp_chm.tif",package = "CENITH")
+#' chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 #' chm <- raster::raster(chmpath)
+#' # take a look on the data
 #' plot(chm)
 #' # start segmentation
-#' x <- TreeSeg(chm,0.5,0.5,13)
-#' plot(x)
+#' x <- TreeSeg(chm,a=0.3,b=0.7,h=13)
+#' length(x)# amount of trees
+#' # compare result with chm
+#' mapview(chm)+x
+#' # clip min and or max polygons
+#' y <-TreeSeg(chm,a=0.3,b=0.7,h=13,MIN=10)
+#' length(y)# amount of trees
+#' mapview(chm)+y
 #' @export TreeSeg
 #' @aliases TreeSeg
 
-TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000){
+TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000,CHMfilter=1,silent=FALSE){
   # function ForestTools vwf cleaned from cat code #############################
   vwf_clean <-function (CHM, winFun, minHeight = NULL, maxWinDiameter = 99,
                               minWinNeib = "queen", verbose = FALSE)
@@ -222,23 +233,51 @@ TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000){
 
   # TreeSeg
 
+  # check inputs
+  if(CHMfilter %% 2 == 0){
+    stop("selected 'filter' sizes contain even values (use odd values only)")
+  }
+  # check filter
+  if(CHMfilter!=1){
+    if(silent==FALSE){
+    cat(paste0("### Cenith computes ",CHMfilter,"*",CHMfilter," sum filter for chm ###",sep = "\n"))
+    }
+    chm <-raster::focal(chm,w=matrix(1/(CHMfilter*CHMfilter),nrow=CHMfilter,ncol=CHMfilter),fun=sum,na.rm=TRUE)
+  }
+
+  if(silent==FALSE){
+  cat(paste0("### Cenith starts segmentation ###",sep = "\n"))
+  }
   # compute Treepositions
   tpos = vwf_clean(chm,
                    winFun = function(x){x * a + b},
                    minHeight = h,
                    verbose = TRUE)
+
   # compute segments
   seg <- chmseg_FT(chm = chm,
                            treepos = tpos,
                            format = "polygons",
                            minTreeAlt = h,
                            verbose = TRUE)
+  if(silent==FALSE){
+    cat(paste0("detected ",length(tpos), " trees ###",sep = "\n"))
+  }
 
   # clip min and max
+  if(silent==FALSE){
+    cat(paste0("### Cenith starts cropping to MIN and MAX ###",sep = "\n"))
+  }
   seg_min <- seg[seg$crownArea>MIN,]
   seg_max <- seg_min[seg_min$crownArea<MAX,]
   seg <- seg_max
   if(length(seg)==0){
     stop(" !!! after cliping to MIN and MAX no polygons are returned, setting results to NA",sep = "\n")}
+
+  if(silent==FALSE){
+    cat(paste0("clipped: ",length(tpos)-length(seg)," polygons. ", length(seg)," trees remaining",sep = "\n"))
+    cat(paste0("### Cenith finished segmentation ###",sep = "\n"))
+
+  }
   return(seg)
 }#end of main function

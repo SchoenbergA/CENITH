@@ -2,9 +2,19 @@
 % Please edit documentation in R/BestSegVal.R
 \name{BestSegVal}
 \alias{BestSegVal}
-\title{Detect best input variables for TreeSegmentation by validation points}
+\title{NOPAR EXPRMTL Detect best input variables for TreSeg TreeSegmentation using Validation Treepositions}
 \usage{
-BestSegVal(chm, a, b, h, vp)
+BestSegVal(
+  chm,
+  a,
+  b,
+  h,
+  vp,
+  MIN = 0,
+  MAX = 1000,
+  skipCheck = FALSE,
+  filter = NULL
+)
 }
 \arguments{
 \item{chm}{raster - RasterLayer with Canopy height model}
@@ -13,35 +23,62 @@ BestSegVal(chm, a, b, h, vp)
 
 \item{b}{numeric - function for MovingWindow}
 
-\item{h}{numeric - maximum height of Trees}
+\item{h}{numeric - minimum height of Trees to detect}
 
-\item{vp}{Polygon - PointLayer with estimated Positions of Trees.}
+\item{vp}{Polygon - PointLayer with estimated Positions of Trees (see details).}
+
+\item{MIN}{numeric - minimum area for Crowns. smaller poylgons are cropped}
+
+\item{MAX}{numeric - maximum area for Crowns. larger polygons are cropped}
+
+\item{skipCheck}{development - bolean - if TRUE skips checking input data}
+
+\item{filter}{numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd (see details)}
 }
 \value{
-returns a dataframe with several validation scores
+returns a dataframe with several validation scores (see details).
 }
 \description{
-uses supervised computed Treepositions to validate best fitting values for a,b and height.
+Iterates over a,b,h,MIN and supports iterating over filtered chms.uses supervised computed Treepositions to validate best fitting values for a,b, height, MIN and CHM filters to detect trees.
 }
 \details{
 \itemize{
-\item Input for a,b,h supports - numeric, single, combination by c() or sequence by seq() to iterate over.
-\item Validation Point - supervised computed pointlayer. Use a GIS like Qgis to set points where Trees are estimated.
+\item 'start and go sleep' The function has implemented error catching. If an iteration would cause critical stop error, the loops continue. Returns NA for corrupted iterations.
+\item Input for a,b,h,MIN,filter supports - numeric, single, combination by c() or sequence by seq() to iterate over (e.G a=0.5 ; a=c(0.3,0.5) ; a=seq(0.1,0.9,0.05).
+\item filter - i could be helpful to filter the raw chm to 'smooth' small peaks and suppress the segmentation of many tiny objects.
+\item Validation Point - supervised computed pointlayer. Use a GIS like Qgis to set points where Trees are estimated (see Tutorial).
+\item if 'skipCheck' = TRUE the input checking is skipped and the iterations start directly.
+\item ! even if the function support iteration over all parameters (except MAX due to estimated no need for MAX Crownareas to clip) it should not be used to iterate over sequences which would be useless.
 }
+}
+\note{
+The 'Brute Force' approach to iterate over many parameters may result in very long time to finish. Preselected smaller samples may be more efficient (see Tutorial)
 }
 \examples{
 # load data
-chmpath <-system.file("extdata","exp_chm.tif",package = "CENITH")
+chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 chm <- raster::raster(chmpath)
-plot(chm)
-vppath <-system.file("extdata","exp_vp.shp",package = "CENITH")
+vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
 vp <- rgdal::readOGR(vppath)
-# run validation
-x <-BestSegVal(chm,seq(0.7,0.8,0.1),seq(0.5,0.7,0.1),c(13,8),vp)
-# view best accuracy (diffenrent iterations can have the same hit rate, but differ in other values)
-maxrow <- x[which.max(x$hit),] # search max vale but rturn only 1 value
-maxhit <- maxrow$hit
+# take a look on the data
+mapview(chm)+vp
+### start iteration runs
+# simple (core values)
+x <- BestSegVal(chm,a=seq(0.1,0.7,0.1),b=seq(0.1,0.7,0.2),h=1,vp=vp,filter=1)
+# check hole table
+x
+# check best results for 'hitrate'
+maxrow <- x[which.max(x$hitrate),] # search max vale but rturn only 1 value
+maxhit <- maxrow$hitrate
 x[which(x$hit==maxhit),]
+# more complex run
+y <- BestSegVal(a=c(0.1,0.7),b=c(0.1,0.7),h=1,MIN=20,filter=c(1,3),vp=vp)
+# check hole table
+y
+# check best results for 'hitrate'
+maxrow <- y[which.max(y$hitrate),] # search max value but return only 1 value
+maxhit <- maxrow$hitrate
+y[which(y$hitrate==maxhit),]
 }
 \author{
 Andreas Schönberg
