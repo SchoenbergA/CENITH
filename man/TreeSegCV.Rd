@@ -4,7 +4,7 @@
 \alias{TreeSegCV}
 \title{TreeSegCV}
 \usage{
-TreeSegCV(sides, a, b, h, MIN, MAX, vps)
+TreeSegCV(sides, a, b, h, MIN, MAX, CHMfilter, vps)
 }
 \arguments{
 \item{sides}{list - chm rasterlayer (see details)}
@@ -21,27 +21,56 @@ TreeSegCV(sides, a, b, h, MIN, MAX, vps)
 
 \item{vps}{list - of PointLayers with estimated Positions of Trees (see details)}
 
-\item{skipCheck}{development - bolean - if TRUE skips chekcing the inputs}
+\item{skipCheck}{development - bolean - if TRUE skips checking the inputs}
 }
 \value{
-returns a dataframe with quality values for the folds and the mean values for a estimted mean quality
+returns a table with quality values for each fold (side) and calculated overall performance (mean values) for all sides.
 }
 \description{
-cs
+performs a n-fold cross validation to estimate the performance of a segmentation 'model' for an AOI
 }
 \details{
-*'sides' and 'vps' must be lists with same order of chm and respectiv validtion points
+*'sides' and 'vps' must be lists with same order of chm and respective validation points.
 \itemize{
-\item a,b,h,MIN,MAX values should be calculated by 'TreeSegVal'
+\item parameters of the model: a,b,h,MIN,MAX should be calculated by 'TreeSegVal'
+\item The overall performance is the mean of all sides.
+\item For the details of the table values see 'BestSegVal'.
 }
+}
+\note{
+The overall performance helps to estimate a precision for an AOI but does NOT give the "exact" precision. More folds will increase the
+expressiveness but will need more time to set Validation Points. Further the supervised setting of Validation Points are highly subjectiv and must not mean the real amount and or position of trees.
 }
 \examples{
-# load chm sides and vp layers
-# list all chm and vp in seperated list
-sides <-list(chm1,chm2,chm3)
-vps <-list(vp1,vp2,vp3)
-# start CV with model (a,b,h,MIN,MAX Values)
-x <- TreeSegCV(sides,a,b,h,MIN,MAX,vps)
+require(CENITH)
+require(mapview)
+require(raster)
+require(rgdal)
+# load data
+chmpath  <-system.file("extdata","lau_chm.tif",package = "CENITH")
+chmpath2 <-system.file("extdata","lau_chm_side2.tif",package = "CENITH")
+chmpath3 <-system.file("extdata","lau_chm_side3.tif",package = "CENITH")
+vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
+vppath2 <-system.file("extdata","lau_vp_side2.shp",package = "CENITH")
+vppath3 <-system.file("extdata","lau_vp_side3.shp",package = "CENITH")
+
+chm  <- raster::raster(chmpath)
+chm2 <- raster::raster(chmpath2)
+chm3 <- raster::raster(chmpath3)
+vp <- rgdal::readOGR(vppath)
+vp2 <- rgdal::readOGR(vppath2)
+vp3 <- rgdal::readOGR(vppath3)
+
+# list all sides and validation points
+chmlist <- list(chm,chm2,chm3)
+vplist <- list(vp,vp2,vp3)
+
+# run 3 fold cross validation with parameters computed by 'BestSegVal' (from example)
+cv <- CENITH::TreeSegCV(sides=chmlist,a=0.3,b=0.5,h=0.5,MIN=5,MAX=1000,CHMfilter=3,vps=vplist)
+cv
+### the model trained with BestSegVal on side1 reaches a overall performance of 0.77 @ 0.12 for all tree sides.
+### Note that the performance on sides 2 and 3 is even better than on side 1 where it was trained. This effect is caused probably because sides 2 and 3 are more homogenious.
+### For sure this is just an example and it can happen that the performance on one side is worst. The overall mean performance is used to estimate the quality of an segmentation for an AOI by testing some subareas.
 }
 \author{
 Andreas Schönberg

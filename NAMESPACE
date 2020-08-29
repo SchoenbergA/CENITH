@@ -3,3 +3,5 @@
 export(BestSegVal)
 export(TreeSeg)
 export(TreeSegCV)
+import(ForestTools)
+import(raster)

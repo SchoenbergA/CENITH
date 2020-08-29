@@ -1,55 +1,69 @@
-#' NOPAR EXPRMTL Detect best input variables for TreSeg TreeSegmentation using Validation Treepositions
-#' @description Iterates over a,b,h,MIN and supports iterating over filtered chms.uses supervised computed Treepositions to validate best fitting values for a,b, height, MIN and CHM filters to detect trees.
+#' Test for best performing parameters for TreeSeg TreeSegmentation using Validation Treepositions
+#' @description Iterates over a,b,h,MIN and supports iterating over filtered chms. Uses supervised computed Treepositions to validate best fitting values for a,b, height, MIN and CHM filters to detect trees.
 #' @param chm raster - RasterLayer with Canopy height model
 #' @param a numeric - function for MovingWindow
 #' @param b numeric - function for MovingWindow
 #' @param h numeric - minimum height of Trees to detect
 #' @param vp Polygon - PointLayer with estimated Positions of Trees (see details).
-#' @param MIN numeric - minimum area for Crowns. smaller poylgons are cropped
-#' @param MAX numeric - maximum area for Crowns. larger polygons are cropped
-#' @param filter numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd (see details)
-#' @param skipCheck development - bolean - if TRUE skips checking input data
+#' @param MIN numeric - minimum area for Crowns in cell value. smaller poylgons are cropped. Default= 0
+#' @param MAX numeric - maximum area for Crowns in cell value. larger polygons are cropped. Default=1000
+#' @param filter numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd (see details), default= 1 (no filtering.)
+#' @param skipCheck for development - bolean - if TRUE skips checking input data
 
 #' @return returns a dataframe with several validation scores (see details).
 #' @details
 #' * 'start and go sleep' The function has implemented error catching. If an iteration would cause critical stop error, the loops continue. Returns NA for corrupted iterations.
+#' * ETA: befor startimg the iterations up to 3 random combinations are tested and the processing time is recorded. The processing time is multiplied with the total amount of iterations to calculate the ETA.
 #' * Input for a,b,h,MIN,filter supports - numeric, single, combination by c() or sequence by seq() to iterate over (e.G a=0.5 ; a=c(0.3,0.5) ; a=seq(0.1,0.9,0.05).
 #' * filter - i could be helpful to filter the raw chm to 'smooth' small peaks and suppress the segmentation of many tiny objects.
 #' * Validation Point - supervised computed pointlayer. Use a GIS like Qgis to set points where Trees are estimated (see Tutorial).
 #' * if 'skipCheck' = TRUE the input checking is skipped and the iterations start directly.
 #' * ! even if the function support iteration over all parameters (except MAX due to estimated no need for MAX Crownareas to clip) it should not be used to iterate over sequences which would be useless.
+#' * result table
+#'    + a,b,height,MIN,chm - the used parameters
+#'    + total_seg - total computed segments
+#'    + hit/vp - amount of segments computed for Trees marked with Validation Points
+#'    + under - undersegmnetation in absolut values, amount of segments which contain more than one validation point.
+#'    + over - oversegmentation in absolut values, amount of segments without validation point
+#'    + area - the total area of segments
+#'    + hitrate - percentage of segments which contain exactly one validation point to total validation points.
+#'    + underrate - undersegmentation in relation to total segments.
+#'    + overrate - oversegmentation in relation to total segments.
+#'    + Seg_qualy - Quality of Segmentation:  hitrate @ combined over- and undersegmentations. A segment with more than one validation points is estimated to be better than segments without validation ponits. There fore the 'miss' value is (over+(2*under))/2.
 #' @author Andreas Schönberg
 #' @note The 'Brute Force' approach to iterate over many parameters may result in very long time to finish. Preselected smaller samples may be more efficient (see Tutorial)
 #' @examples
+#' ### NOTE: this example is used to show the usage of 'BestSegVal'. It is NOT used to show a workflow for best Results (see 'Tutorial' vignette for workflow strategies)
+#' ### further NOTE: to reduce time usage for the example only small iteartions are used to get an overlook for the functionallities.
 #' # load data
 #' chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 #' chm <- raster::raster(chmpath)
 #' vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
 #' vp <- rgdal::readOGR(vppath)
-#' # take a look on the data
+#' # take a look at the data (chm with estimated Treeposition)
 #' mapview(chm)+vp
-#' ### start iteration runs
-#' # simple (core values)
-#' x <- BestSegVal(chm,a=seq(0.1,0.7,0.1),b=seq(0.1,0.7,0.2),h=1,vp=vp,filter=1)
-#' # check hole table
-#' x
-#' # check best results for 'hitrate'
+#' # start BestSegVal with parameters for Moving window and minimum height
+#' x <- BestSegVal(chm,a=c(0.3,0.5),b=c(0.5,0.7),h=c(0.1,1),vp = vp,filter=c(1,3))
+#' # check for best hitrate
 #' maxrow <- x[which.max(x$hitrate),] # search max vale but rturn only 1 value
 #' maxhit <- maxrow$hitrate
-#' x[which(x$hit==maxhit),]
-#' # more complex run
-#' y <- BestSegVal(a=c(0.1,0.7),b=c(0.1,0.7),h=1,MIN=20,filter=c(1,3),vp=vp)
-#' # check hole table
-#' y
-#' # check best results for 'hitrate'
-#' maxrow <- y[which.max(y$hitrate),] # search max value but return only 1 value
-#' maxhit <- maxrow$hitrate
-#' y[which(y$hitrate==maxhit),]
+#' x[which(x$hitrate==maxhit),]
+#' # visualise best combination (due to Segment Quality)
+#' y <- TreeSeg(chm,0.3,0.7,0.1,CHMfilter = 3)
+#' # show result segments with validation points and chm
+#' mapview(chm)+vp+y
+#' # BestSegVal based on this results keep a,b and filter 3 with MIN values to reduce oversegmentation and different heights.
+#' z <- BestSegVal(chm,a=0.3,b=0.7,h=c(0.1,0.2,0.5,1),MIN=c(10,100),vp = vp,filter=3)
+#' ### Note that row 1 and 2 lead to much lesser oversegmnetation just differ in area.
+#' # visualize
+#' v <- TreeSeg(chm,0.3,0.7,0.1,MIN=10,CHMfilter = 3)
+#' mapview(chm)+vp+v
+
 #' @export BestSegVal
 #' @aliases BestSegVal
 
 
-BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=NULL){
+BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
   if(skipCheck==FALSE){
     cat(paste0("### Cenith checking input ###",sep = "\n"))
     #check for wrong sizes input

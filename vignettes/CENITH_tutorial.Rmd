@@ -1,0 +1,160 @@
+---
+title: "CENITH - tutorial"
+author: "Andreas Schönberg"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+  theme: united
+
+vignette: >
+  %\VignetteIndexEntry{CENITH_tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(fig.width = 5)
+```
+## Introduction
+
+### Background and Motivation
+
+Performing a Tree Segmentation (computing polygons for each Tree Crown) can be very difficult. The 'ForestTools' package delivers a powerfull watershed algorithm which uses a canopy height model (chm). It destiguishes the TreeCrowsn by the height values within a moving Window. The peaks in the chm represent the Treepositions (highest point) and the borders to the next Treecrwon is when the height increases again after decreasing from the peak.
+
+One major problem is that there is no automated way to estimate the quality of those computed polygons. But in science it is nessecary to validate the quality by giving the user a error value. Further the inout parameters can be modified in several way causing hundreds of possible vlaues to use to compute even hundreds of different results.
+
+CENITH comes with some functions for automated testing input parameters and validating the results.
+
+
+### Install and Help
+
+First install the package and load it into the environment.
+NOTE: devtools package is neccesary to install CENITH via Github.
+```{r, message = FALSE, warning=FALSE}
+#devtools::install_github("SchoenbergA/CENITH@master")
+require(CENITH)
+
+```
+
+For help about the functions provided by CENITH see the help:
+
+```{r, message = FALSE, warning=FALSE}
+help(package="CENITH")
+```
+
+## Tutorial
+
+In this tutorial i will lead you thought the "CENITH Segmentation workflow" from one chm over input parameters testing to validation strategies for the results.
+
+We will use the implemneted exmaple data set which represent some treeline areas in the lautaret vally in the France Alps.
+
+## Getting started with segmentation
+
+### TreeCrown Segmentation on a CHM
+
+Lets start with a simple segmentation of some trees to see what the watershed algorithem can do. First load the example data, load the packages for the tutorial and lets take a look:
+
+```{r, message=FALSE,warning=FALSE}
+# load libarys
+require(raster)
+require(mapview)
+# load data
+chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
+chm <- raster::raster(chmpath)
+# take a look on the data
+mapview(chm)
+```
+We see some Trees in the middle and some smaller???
+
+Now lets perform a "simple" (we will see it is nothing like simple ;-) ) watershed segmentation using 'TreeSeg'. For the start we use a=0.55,b=0.7 and the minimum height to 8 to ensure we just get the higher trees in the middle. After processing we use 'mapview' to plot the resulting segments over the chm to take a look how good they represent the Crwons.
+
+```{r, message=FALSE,warning=FALSE}
+# start segmentation
+simple <- TreeSeg(chm,a=0.55,b=0.7,h=8)
+length(simple)# amount of trees detected
+# compare result with chm
+mapview(chm)+simple
+
+```
+Ok we got 2 segments and hit the trees in the middle. But this does not look like we expected? NO. Due to the minimun height of 8 the Segments are only around the highest areas of the Crowns. Than lets reduce the minimum height to 1 meter:
+
+NOTE we will use other values for 'a'. The reason is that some combinations of a,b and h cause an error (we will come up to this later). For now lets just use those values I tested. 
+
+```{r, message=FALSE,warning=FALSE}
+# start segmentation
+simple2 <- TreeSeg(chm,a=0.2,b=0.7,h=1)
+length(simple2)# amount of trees detected
+# check CrownArea
+simple2$crownArea
+# compare result with chm
+mapview(chm)+simple2
+
+```
+Well done! The tresss in the middle look very good right? Four Segments: The seperated Tree left and those standing together have one segment each. Here we see how the watershed algorithem works. The Trees in the very middle stand together but the height of the Crowns is lower where they meet each other.
+
+But what are thise segments in the top right? With a minimum height of 1 those scrubs are detected too. Isnt this perfect? Well not so much! scrubs will be very hard to validate and are not part of the CENITH way (for now).
+
+So what can we do to just detect the trees? Increasing the minimun height (h) to a value higher than the scrubs but not to high to lose information about the Trees. 
+
+Additionally we could try to crop those scrubs by their area. 'TreeSeg' has parameters to crop segments to desired MIN and MAX. So setting the MIN parameter to an area bigger than the biggest Segment in the upper right would leace only the Trees. BUT this strategy has a major problem (nachteil) it would additionlly crop trees. The cropping is much more used to delete small artifacts like stones or bad data in the chm.
+
+NOTE: again i had to change the a and or b parameters. Feel free to test this urself by using the values from the exmaples above with the new height of 3.
+
+```{r, message=FALSE,warning=FALSE}
+# start segmentation
+simpleTree <- TreeSeg(chm,a=0.1,b=0.5,h=3)
+length(simpleTree)# amount of trees detected
+# check CrownArea
+simpleTree$crownArea
+# compare result with chm
+mapview(chm)+simpleTree
+
+
+
+```
+So look better in the scrub area BUT our nearly perfectl TreeCrwons doesnt look this good anymore. There are some more 'subsegments' along with small 'holes'.
+
+AS you can see by now it is quiet frustrating changing the parameters by hand. Further imagin this is just a 100x100 meter subarea where we want to train our segmentation for a much larger are.
+
+So let me just introduce you to the further parameter options of 'TreeSeg' and than lets go over to the automated way ;)
+
+### MIN and chmFilter
+
+As mentioned earlyier the CENITH way comes with the ability to crop segments to MIN and MAX. MAX is hereby of minor use because the chances to compute much to big segments is minimal. But MIN can change the picture of a segmentation.
+
+So lets see what the segmentation looks like if we set up a Minimum area. We will use the 'simple2' example.
+```{r, message=FALSE,warning=FALSE}
+# start segmentation
+simpleMIN <- TreeSeg(chm,a=0.2,b=0.7,h=1,MIN=10)
+length(simpleMIN)# amount of trees detected
+# check CrownArea
+simpleMIN$crownArea
+# compare result with chm
+mapview(chm)+simpleMIN
+
+```
+Well this looks better than without setting MIN . BUT our scrubs still show up. Now we could set the MIN to a value > the biggest scrub? Yes. Or we modifie a,b,h, and MIN again? Sounds about a nice weekend candlelight diner with CENITH :-)
+
+To makes things more complex there is one more parameter option (to finally make it funny): an option to smooth the chm. CENITH comes with an implemented sum filter function to smooth the chm. Here we just select a MovingWindow of x*x (which must be odd).
+
+So lets to the 'simpleTree' parameters again (remeber that there were those small holes?)
+
+```{r, message=FALSE,warning=FALSE}
+# start segmentation
+simpleTree <- TreeSeg(chm,a=0.1,b=0.5,h=3,CHMfilter = 3)
+length(simpleTree)# amount of trees detected
+# check CrownArea
+simpleTree$crownArea
+# compare result with chm
+mapview(chm)+simpleTree
+
+
+
+
+```
+OK this looks far better than with the original chm but still there are some very small segments along with still some small holes. So again we could set up a MIN and take a wider MovingWindow for the filter like 5 or 7. Or we additionlly try other a,b,h values along with MIN and chmFilter?
+
+Yes we will but not by hand ;)
+
+## Automated Parameter Selection

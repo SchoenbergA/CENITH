@@ -22,6 +22,7 @@
 #' chm <- raster::raster(chmpath)
 #' # take a look on the data
 #' plot(chm)
+#' # NOTE: the exmple should NOT show to get optimal results (for this see 'BestSegVal')
 #' # start segmentation
 #' x <- TreeSeg(chm,a=0.3,b=0.7,h=13)
 #' length(x)# amount of trees

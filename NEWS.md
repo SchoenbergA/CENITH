@@ -1,3 +1,26 @@
+# CENITH 0.0.99.1
+
+* new features
+add vignette - tutorial part 1 treseg 
+
+# CENITH 0.0.99.0
+Prerelease version 0.99
+
+* new features
+CENITH - package - add package script with imports and descriptions
+add Example Data for Crossvalidation
+
+* bugfixes
+some major changes in BestSegVal cat codes.
+
+# CENITH 0.0.0.97
+* new features
+complete clean up of Development functions (keep stable version of BestSegVal)
+
+TreeSegVal - now iterates over a,b,h,MIN, and chm filters. Advanced ETA estimation added (now uses full iterations of TreeSeg). Further cleand up "cat" codes to more easy see the ETA.
+
+Added all new Example data.
+
 # CENITH 0.0.0.96
 * new features
 TreeSegValEXPRMTL - advanced version of TreeSegVal which additionally iterates over MIN and supports filtering for chm.
