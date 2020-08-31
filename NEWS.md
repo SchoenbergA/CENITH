@@ -1,3 +1,9 @@
+# CENITH 0.0.99.2
+
+* new features
+update vignette - add part 2 (BestSegVal) and 3 (TreeSegCV) to vignette
+add example data - chm and rgb for the AOI
+
 # CENITH 0.0.99.1
 
 * new features

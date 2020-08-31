@@ -1,6 +1,6 @@
 Package: CENITH
 Title: Segmentation tool
-Version: 0.0.99.1
+Version: 0.0.99.2
 Authors@R: 
     person(given = "Andreas",
            family = "Schönberg",

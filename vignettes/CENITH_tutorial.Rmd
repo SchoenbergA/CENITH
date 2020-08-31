@@ -22,7 +22,7 @@ knitr::opts_chunk$set(fig.width = 5)
 
 Performing a Tree Segmentation (computing polygons for each Tree Crown) can be very difficult. The 'ForestTools' package delivers a powerfull watershed algorithm which uses a canopy height model (chm). It destiguishes the TreeCrowsn by the height values within a moving Window. The peaks in the chm represent the Treepositions (highest point) and the borders to the next Treecrwon is when the height increases again after decreasing from the peak.
 
-One major problem is that there is no automated way to estimate the quality of those computed polygons. But in science it is nessecary to validate the quality by giving the user a error value. Further the inout parameters can be modified in several way causing hundreds of possible vlaues to use to compute even hundreds of different results.
+One major problem is that it is hard to estimate the quality of those computed polygons. But in science it is nessecary to validate the quality by giving the user a error value. Further the input parameters can be modified in several ways causing hundreds of possible combinations of parameter values.
 
 CENITH comes with some functions for automated testing input parameters and validating the results.
 
@@ -45,9 +45,9 @@ help(package="CENITH")
 
 ## Tutorial
 
-In this tutorial i will lead you thought the "CENITH Segmentation workflow" from one chm over input parameters testing to validation strategies for the results.
+In this tutorial i will lead you thought the "CENITH Segmentation Workflow" from one chm over input parameters testing to validation strategies for the results.
 
-We will use the implemneted exmaple data set which represent some treeline areas in the lautaret vally in the France Alps.
+We will use the implemneted exmaple data set which represents some treeline areas in the lautaret vally in the France Alps.
 
 ## Getting started with segmentation
 
@@ -91,9 +91,9 @@ simple2$crownArea
 mapview(chm)+simple2
 
 ```
-Well done! The tresss in the middle look very good right? Four Segments: The seperated Tree left and those standing together have one segment each. Here we see how the watershed algorithem works. The Trees in the very middle stand together but the height of the Crowns is lower where they meet each other.
+Well done! The trees in the middle look very good right? Four Segments: The seperated Tree left and those standing together have one segment each. Here we see how the watershed algorithem works. The Trees in the very middle stand together but the height of the Crowns is lower where they meet each other.
 
-But what are thise segments in the top right? With a minimum height of 1 those scrubs are detected too. Isnt this perfect? Well not so much! scrubs will be very hard to validate and are not part of the CENITH way (for now).
+But what are those segments in the top right? With a minimum height of 1 those scrubs are detected too. Isnt this perfect? Well not so much! Scrubs will be very hard to validate and are not part of the CENITH way (for now).
 
 So what can we do to just detect the trees? Increasing the minimun height (h) to a value higher than the scrubs but not to high to lose information about the Trees. 
 
@@ -153,8 +153,228 @@ mapview(chm)+simpleTree
 
 
 ```
-OK this looks far better than with the original chm but still there are some very small segments along with still some small holes. So again we could set up a MIN and take a wider MovingWindow for the filter like 5 or 7. Or we additionlly try other a,b,h values along with MIN and chmFilter?
+OK this looks far better than with the original chm but still there are some very small segments along with still some small holes. So again we could set up a MIN and take a wider MovingWindow for the filter like 5 or 7. Or we additionally try other a,b,h values along with MIN and chmFilter?
 
 Yes we will but not by hand ;)
 
 ## Automated Parameter Selection
+
+### Validation Points and Testing Area
+
+CENITH provides the function 'BestSegVal' which is used to test several combinations of the tuning parameters in a small testing area. Therefore it is neccessary to know where the tress are which should be detected. We will do this by supervised setting of 'Validation Points' a point shapefile with points for every estimated tree is the testing area.
+
+The idea is to choose a smaller testing area within the AOI to tune the parameters and than use those trained parameters for the hole AOI. The tree structure in the testing area should be representativ for the AOI and inhomogenious. E.g. if the AOI contains trees stand in tight groups it would not be a good idea to set the testing area to some single trees).
+
+The workflow for the testing area is to use a GIS (like Qgis) and load in the chm. Now select a representativ subarea and crop the chm. Create a point layer in shapefile format and set points where a tree is estimated. The point should be placed at the treetop (heighest position in treecrown). We can take an orthophoto or something like google maps to help to see and seperate the trees BUT keep in mind that Lidar data can be shift against those images. Therefore the best idea is to set the validation points on the chm (spatial precision) and use those images only to get a better seight on the trees.
+
+For this tutorial our AOI is a Treeline at the Lautaret Vally in the France Alps.
+We want to run a tree crown segmenattion for the hole AOI and estimate the precision of this segmentation.
+
+Lets first take a look on the AOI:
+
+```{r, message=FALSE,warning=FALSE}
+# load RGB and CHM for AOI
+AOIpath  <-system.file("extdata","lau_AOI_chm.tif",package = "CENITH")
+RGBpath <-system.file("extdata","lau_AOI_rgb.tif",package = "CENITH")
+
+AOIchm  <- raster::raster(AOIpath)
+AOIrgb  <- raster::stack(RGBpath)
+# view
+plotRGB(AOIrgb)
+
+
+
+
+
+
+```
+The trees in this AOI differ from each other in height, crwonArea and distance to each other: We see some trees standing in close neighborhood (upper mid), some small trees standing alone or in groups (right side) and a lot of larger trees seperated from each other (left side).
+
+Now lets take a look what the AOI looks like in the CHM and our testing area which we used before
+```{r, message=FALSE,warning=FALSE}
+
+# view
+mapview(AOIchm)
+
+
+
+
+
+
+```
+Well here we see only the Canopy which we want to segmentate.
+
+Ok lets take a look on the testing Area (wich we used before) and the Validation Points for the area we used before:
+```{r, message=FALSE,warning=FALSE}
+# load validation points for testing area
+vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
+vp <- rgdal::readOGR(vppath)
+# view
+mapview(chm)+vp+AOIchm
+
+
+
+
+
+
+```
+The testing area represents all tree kinds of tree structures in the AOI: large trees in close and distant neighborhoor (lower mid and left) along with small trees / scrubs (upper right).
+
+We can see each of the trees in the very mid of the area have a validation point. Thus have the scrubs in the top right. In general CENITH is NOT intendet to use to detect scrubs at all (see chapter "scrubs handling") but for this tutorial we estimate those small "hills" in the chm to be young trees. This serves to show how CENITH works with different heights of vegeation.
+
+
+### BestSegVal
+
+Now we are able to valtidate the segments computed by a combination of the input parameters (a,b,h,MIN,MAX,CHMfilter). The validation works like this: If a segment contains exact one validation point (VP) it is a "hit". If there are more than one VP in a segment it is a "undersegmentation" (meaning there are too little segments computed). The last possible result is that there are segments without any VPs what is called a "oversegmentation" (computed too much segments). So the "Best Segmentation" would be one segment for every VP. BestSegVal iterates over all possible combination depending on the input parameters (a,b,h,MIN,MAX,CHMfilter) and returns a table with information about the "quality" of the respectiv segmentations computed.
+
+Lets take a look what happens if we use the parameters of the last exmample:
+NOTE: BestSegVal will by default check the input data and further calculate the estimated time (ETA) to finish all iterations. If we only want to test a single combination the parameter 'skipCheck=TRUE' will save some time.
+```{r, message=FALSE,warning=FALSE}
+# start validation with single parameters (no iterations)
+val1 <- BestSegVal(chm,a=0.1,b=0.5,h=3,filter = 3,vp = vp,skipCheck = TRUE)
+# view results
+val1
+
+
+
+
+
+```
+So for the combination a=0.1,b=0.5,h=3 and filter = 3 we get a hitrate (amount of segments with exact one VP) of 0.57 (4 out of 7) with 9 segments in total. This combination causes no undersegmentation but 0.55 % of all segments have no VP. So is this good? or not so good?
+
+Lets take a look at the "Segment Quality" (Seg_qualy): 0.57 @ 0.28. The first value is the hitrate while the second value is the "not hit" rate (over and under segmentation). This sencond rate is a combination of (Overrate + 2 * Underrate) / 2 due to the fact that Undersegmentation still means the segments hit a tree while Oversegmentation is totally wrong. The quality is good if the first value is high while the second is low. So the "best" result would be 1,0 @ 0.0 (which is possible but NOT always).
+
+The "Segment Quality" serves as the first comparison value for the results.
+If there are different combination which leads to a equal "Segmnet Quality" the results for 'area' give an idea about the total area of the segments (where bigger total areas probably is better). In the end it is recommended to view the results and compare them.
+
+So lets see about testing several combinations.
+
+### iterations and parameters
+
+BestSegVal supports single numeric values, combination in c() and sequences in seq() for every parameter (a,b,h,MIN,MAX,CHMfilter). The amount of iterations increase exponential with every parameter used.
+
+Lets take a look:
+If we iterate over a=seq(0.1,1.0,0.1) and b=seq(0.1,1.0,0.1) this would lead to 10*10 = 100 iterations. If we than additionlly iterate over h=(1,10,1) it will increase to 10*10*10 = 1000 iterations. And so on with the other parameters.
+
+So a "brute force" approach by using long sequences to ALL parameters at once could take hours to days to process and is NOT recommended. Further not all parameters influenz the result in the same way so that we can focus on some parameters and use others only for some fine tuning: 
+
+The parameters 'a' and 'b' are essential for the MovingWindow and should be tested primarily (most iterations). It is recommended to start with wide ranges but less steps in sequences (like 0.1 to 1.0 in 0.1 steps (10) instead of 0.01 (100)). For 'a' and 'b' ranges of 0.1 to 1.0 are good to start (based on experiances).
+
+The minimum height 'h' is more about the range of the chm and what the vegeation structur is about. Testing 'h' with values from the top of the chm range would lead to very small segments while values around 0 would lead to segmentation of stones and artifacts in the chm. A good start to prevent oversegmentation of "Not vegetation" is around 0.5 or 1.0 meter. If there is a scrublayer (see chapert scrubs) it is recommended to test 'h' > maximum height of scrubs. e.g. with a chm range of 0 - 15 meter and a scrub layer with maximum height of 1.19 the testing of 'h' with c(1.2,1.5,2) would be a good start.
+
+The MIN parameters are especially used to reduce oversegmentation (small artifacts) but it would NOT make sense to test a hugh sequenc of values. It is recommended to first run BestSegVal without MIN=0 and inspect the results. In case of high hitrate but also high oversegmentation it could help to test those combinations with several MIN values again. 
+In general a MIN of <10 would protect from small artifacts.
+
+At least the 'filter' parameter is much like MIN used for finetuning. A smoother chm will cause less tiny segments like small "holes" in a crown. Along with MIN it is recommended to test 'filter' values in a second run (finetuning).
+
+Lets see:
+BUT to save some time in this tutorial we will use lesser iterations. Feel free to test the exmaple data with longer sequences.
+```{r, message=FALSE,warning=FALSE}
+# start validation with single parameters (no iterations)
+val2 <- BestSegVal(chm,a=seq(0.1,0.8,0.2),b=c(0.1,0.5,0.9),h=0.5,filter = 1,vp = vp)
+# view results
+val2
+
+
+
+
+
+```
+
+Ok first we see that we get some combinations with a segment quality of aound 0.86 @ 0.40 (rows 1-4) with no Undersegmentation but high oversegmnetation. Further we see that in he range of 'a' and 'b' values >0.3 and >0.5 does not lead to better results.
+
+Now we have two ways of going on: 1. we could use teh results to again test 'a' and 'b' with finer steps in the ranges which leads to the best results. 2. start to test if 'MIN' and 'filter' parameters will reduce the oversegmentattion. But lets first take a look what the results look like. Therefore we will use the best Segment Quality of 0.86 @ 0.31 (row 3).
+
+
+```{r, message=FALSE,warning=FALSE}
+# start segmentation for best combination
+checkBestSeg <- TreeSeg(chm,a=0.1,b=0.9,h=0.5,CHMfilter = 1)
+
+# check CrownArea
+checkBestSeg$crownArea
+# compare result with chm
+mapview(chm)+checkBestSeg+vp
+
+
+
+
+```
+The four trees in the middle are well segmentated BUT like before the scrubs in the top right does not look very well. Further there are some small "pieces" at the top which are estimated stones or chm artifacts. With this result we see that testing some 'MIN' parameters could help to reduce the small "pieces" and maybe a 'filter' will help to smooth the scrubs.
+
+So lets run 'BestSegVal' again with 'a','b' of the best result and for finetuning with 'MIN' and 'filter'. For MIN lets orientate at the areas and for filter lets select the samll MovingWindows of 3 and 5. Further in this run lets test some 'h' values too.
+
+```{r, message=FALSE,warning=FALSE}
+# start finetuning
+finetune <- BestSegVal(chm,a=0.1,b=0.9,h=c(0.5),MIN=c(1,5,7),filter = c(1,3,5),vp = vp)
+# view results
+finetune
+
+```
+Here we go. The combinations in row 5 and 9 leads to Segment Quality of 0.86 @ 0.12 where 9 has sligtly higher total area while row 3 has the best 'missrate' but one hit less than the others.
+
+Now it is up to the user to decide which result is better. It is recommended to view those best results.
+
+Lets for example purposes view row 9 with best Segment Quality:
+```{r, message=FALSE,warning=FALSE}
+# start segmentation for best combination
+bestTune <- TreeSeg(chm,a=0.1,b=0.9,h=0.5,MIN=7,CHMfilter = 5)
+
+# compare result with chm
+mapview(chm)+bestTune+vp
+
+
+
+
+```
+Well we now have reduced the small "pieces" and the trees in the middle still look very good, while the scrubs are in some way better but still not very good.
+
+At this point let stop the testing in this example. Remember that this tutorial should give you an idea how CENITH works and that we used only small (but fast) combinations of parameters. Furher note thatthe minimum height 'h' is highly connected to  the MovingWindow of 'a' and 'b' and if 'h' is modified it could lead to several 'NA' results if the MovingWindow is tuned on another 'h'. E.g. if we would add a 'h' of 1 to our last 'BestSegVal' run. The MovingWindow of 'a' and 'b' would lead to no results for 'h' = 1.
+
+Conclusions for BestSegVal
+
+Start with 'a' , 'b' and 'h' parameters to get a well perfroming MovingWindow and than start finetuning with 'filter' and 'MIN' depending on the results (like heavy oversegmentation).
+
+## AOI Crossvalidation
+
+For now we worked on tuning the Segmentation for a testing area but it totally makes no sense to go this way for a hole AOI. While putting the validation points you could also directly draw polygons. So the idea of tuning parameters in a small testing area is to use the 'best resulting parameters' to perform a segmentation for the hole AOI. BUT here we have a major problme: We do not know how good those parameters perform for other areas! Therefore CENITH comes with a x-fold Crossvalidation (CV) (where x is the amount of subareas) to estimate the performance of a tuned combination of parameters in other subareas of the AOI. With the result of the CV we can estimate the quality for a segmentation of the hole AOI using the tuned parameters.
+
+### example 3-fold CV
+
+For this tutorial we will perform a 3-fold CV using two additional chm subareas and their respectiv VP. Lets see the subareas in our AOI:
+
+```{r, message=FALSE,warning=FALSE}
+# load data
+chmpath  <-system.file("extdata","lau_chm.tif",package = "CENITH")
+chmpath2 <-system.file("extdata","lau_chm_side2.tif",package = "CENITH")
+chmpath3 <-system.file("extdata","lau_chm_side3.tif",package = "CENITH")
+vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
+vppath2 <-system.file("extdata","lau_vp_side2.shp",package = "CENITH")
+vppath3 <-system.file("extdata","lau_vp_side3.shp",package = "CENITH")
+
+chm1  <- raster::raster(chmpath)
+chm2 <- raster::raster(chmpath2)
+chm3 <- raster::raster(chmpath3)
+vp1 <- rgdal::readOGR(vppath)
+vp2 <- rgdal::readOGR(vppath2)
+vp3 <- rgdal::readOGR(vppath3)
+
+# view all subareas and VP
+mapview(chm1)+chm2+chm3+vp1+vp2+vp3+AOIchm
+
+```
+The subarea in the lower right is where we tuned our parameters. The subarea in the upper middle represents a lot of smaller trees in very close neighborhood while the subarea on the left contains some larger trees with distance to each other.
+
+Now will will test the performance of our tuned parameters for the other subareas with 'TreeSegCV'. The function will return a table (like BestSegVal) with the perfromance for weach subarea along with a mean value over all areas. Note that we need to list() our areas and VP in the same order.
+
+```{r, message=FALSE,warning=FALSE}
+# list all sides and validation points
+chmlist <- list(chm,chm2,chm3)
+vplist <- list(vp,vp2,vp3)
+
+# run 3 fold cross validation with parameters computed by 'BestSegVal' (from example)
+cv <- CENITH::TreeSegCV(sides=chmlist,a=0.1,b=0.9,h=0.5,MIN=7,MAX=1000,CHMfilter=5,vps=vplist)
+cv
+```
+So here we go. The total performance is 0.84 @ 0.09 even slighty better than the perfromacne on the original testing side. For area 2 (the one with the single trees) we even reach 100% perfromance while area 3 has a slightly decrease in performance compared to the original area 1 (where we tuned the parameters).
+
+With this CV result we could now start a segmentation (with 'TreeSeg') and the parameters a=0.1,b=0.9,h=0.5,MIN=7,MAX=1000,CHMfilter=5 for the AOI and estimate the overall performacne for  this segmentation with 0.84 hitrate by 0.09 missrate.

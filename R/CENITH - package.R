@@ -15,6 +15,18 @@
 #' @keywords package
 NULL
 #' @docType data
+#' @name lau_AOI_chm - data
+#' @title A canopy height model (chm) for the tutorial AOI
+#' @description AOI chm of Tutorial in the Lautaret vally in the france alps. Resolution 0.15 meter.
+#' @format \code{"raster::raster"}
+NULL
+#' @docType data
+#' @name lau_AOI_rgb - data
+#' @title An rgb image for the tutorial AOI
+#' @description AOI rgb of Tutorial in the Lautaret vally in the france alps. Resolution 0.15 meter.
+#' @format \code{"raster::raster"}
+NULL
+#' @docType data
 #' @name lau_chm - data
 #' @title A canopy height model (chm)
 #' @description CHM of some trees in side 1/3 in the Lautaret vally in the france alps. Resolution 0.15 meter.
@@ -50,3 +62,5 @@ NULL
 #' @description Estimated Position of trees for the thrid example chm area in the Lautaret Vally. Used to validate Segmentation.
 #' @format \code{"rgdal::readOGR"}
 NULL
+
+
