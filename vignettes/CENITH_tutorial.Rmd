@@ -225,7 +225,7 @@ Now we are able to valtidate the segments computed by a combination of the input
 
 Lets take a look what happens if we use the parameters of the last exmample:
 NOTE: BestSegVal will by default check the input data and further calculate the estimated time (ETA) to finish all iterations. If we only want to test a single combination the parameter 'skipCheck=TRUE' will save some time.
-```{r, message=FALSE,warning=FALSE,results='hide}
+```{r, message=FALSE,warning=FALSE,results='hide'}
 # start validation with single parameters (no iterations)
 val1 <- BestSegVal(chm,a=0.1,b=0.5,h=3,filter = 3,vp = vp,skipCheck = TRUE)
 ```
