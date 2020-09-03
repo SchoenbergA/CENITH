@@ -1,3 +1,7 @@
+# CENITH 0.0.99.3
+* new features
+update vignette - add result='hide' to chunks for increased overview in tutorial.
+
 # CENITH 0.0.99.2
 
 * new features
