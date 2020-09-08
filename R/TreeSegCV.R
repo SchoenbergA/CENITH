@@ -70,7 +70,7 @@ TreeSegCV <- function(sides,a,b,h,MIN,MAX,CHMfilter,vps){
     seg <- try(TreeSeg(chm=sides[[i]],a,b,h,MIN,MAX,CHMfilter,silent=TRUE),silent = TRUE)
     # handle error catch
     if(class(seg)=="try-error"){
-      cat(paste0(" !!! iteration a=",a," b=",b," h=",h," leads to an error on side:", side[[i]], "setting to 'NA' in results ",sep="\n"))
+      cat(paste0(" !!! iteration a=",a," b=",b," h=",h," leads to an error on side:", names(sides[[i]]), "setting to 'NA' in results ",sep="\n"))
       result[i, 1] <- a
       result[i, 2] <- b
       result[i, 3] <- h

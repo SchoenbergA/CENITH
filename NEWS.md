@@ -1,3 +1,8 @@
+# CENITH 0.0.99.4
+* bugfixes
+
+fixed TreeSegCV - now if a combination leads to an error the error is printen correctly and the function continues.
+
 # CENITH 0.0.99.3
 * new features
 update vignette - add result='hide' to chunks for increased overview in tutorial.
