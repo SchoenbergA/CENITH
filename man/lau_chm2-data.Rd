@@ -8,5 +8,5 @@
 \code{"raster::raster"}
 }
 \description{
-CHM of some trees in side 2/3 in the Lautaret vally in the france alps. Resolution 0.15 meter.
+CHM of trees in site 2 of 3 in the Lautaret valley in the French Alps. Resolution 0.15 m.
 }

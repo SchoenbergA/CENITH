@@ -8,5 +8,5 @@
 \code{"rgdal::readOGR"}
 }
 \description{
-Estimated Position of trees for the example chm area in the Lautaret Vally. Used to validate Segmentation.
+Estimated position of trees for the first example chm in the Lautaret Valley. It is used to validate the segmentation.
 }

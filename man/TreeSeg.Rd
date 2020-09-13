@@ -16,37 +16,37 @@ TreeSeg(
 )
 }
 \arguments{
-\item{chm}{raster - RasterLayer with Canopy height model}
+\item{chm}{raster -  Canopy Height Model RasterLayer.}
 
-\item{a}{numeric - function for MovingWindow}
+\item{a}{numeric - single value for MovingWindow.}
 
-\item{b}{numeric - function for MovingWindow}
+\item{b}{numeric - single value for MovingWindow.}
 
-\item{h}{numeric - maximum height of Trees}
+\item{h}{numeric - maximum height of trees (in meter) to detect trees.}
 
-\item{MIN}{numeric - minimum area for Crowns. smaller poylgons are cropped}
+\item{MIN}{numeric - the minimum area for crowns. Smaller polygons are cropped.}
 
-\item{MAX}{numeric - maximum area for Crowns. larger polygons are cropped}
+\item{MAX}{numeric - the maximum area for crowns. Larger polygons are cropped.}
 
-\item{CHMfilter}{numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd. Default=1 no filtering (see details)}
+\item{CHMfilter}{numeric - uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd. Default=1 no filter.}
 
-\item{silent}{bolean - if TRUE the function will not print any progress messages (default=FALSE)}
+\item{silent}{bolean - if TRUE the function will not print any progress messages (default=FALSE).}
 }
 \value{
 returns a PolygonLayer with segments
 }
 \description{
-computes polygon segments for TreeCrowns based on watershed algorithem
+computes polygon segments for TreeCrowns based on watershed algorithm
 }
 \details{
-uses a Moving Window x*a+b to detetc local Maxima in a chm to compute TreeCrown Segments
+uses a MovingWindow of x*a+b to detect local maxima in a chm to compute TreeCrown Segments
 \itemize{
-\item parameter selection - use BestSegVal to automated detect best fitting parameters for a,b,h,MAX and filter.
-\item filter - uses a sum filter with Moving Window of x, must be odd.
+\item parameter selection - use \code{\link{BestSegVal}} to automated detect best fitting parameters for a, b, h, MIN and filter.
 }
 }
 \note{
-'brute force' segmentation with random parameters is not recommended. As it is not to just handsome test parameters. TreeSeg is mainly just to compute segments AFTER validation best fitting parameters with 'TreeSegVal'.
+A 'brute force' segmentation with random parameters is not recommended. TreeSeg is mainly used to compute segments AFTER the validation of best fitting parameters with \code{\link{BestSegVal}}.
+Further to estimate the quality of the computed polygons it is recommended to use \code{\link{TreeSegCV}} for a x-fold CrossValdiation over x different subareas. For full workflow see the 'Tutorial'.
 }
 \examples{
 # load data
@@ -65,8 +65,10 @@ y <-TreeSeg(chm,a=0.3,b=0.7,h=13,MIN=10)
 length(y)# amount of trees
 mapview(chm)+y
 }
-\references{
+\seealso{
+\code{\link{BestSegVal}}
 
+\code{\link{TreeSegCV}}
 }
 \author{
 Andreas Schönberg

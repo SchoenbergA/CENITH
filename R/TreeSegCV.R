@@ -1,22 +1,23 @@
 #' TreeSegCV
-#' @description performs a n-fold cross validation to estimate the performance of a segmentation 'model' for an AOI
-#' @param sides list - chm rasterlayer (see details)
-#' @param a numeric - function for MovingWindow
-#' @param b numeric - function for MovingWindow
-#' @param h numeric - maximum height of Trees
-#' @param vps list - of PointLayers with estimated Positions of Trees (see details)
-#' @param MIN numeric - minimum area for Crowns. smaller poylgons are cropped
-#' @param MAX numeric - maximum area for Crowns. larger polygons are cropped
-#' @param skipCheck development - bolean - if TRUE skips checking the inputs
-#' @return returns a table with quality values for each fold (side) and calculated overall performance (mean values) for all sides.
+#' @description performs an n-fold cross validation to estimate the performance of a segmentation 'model' for an AOI
+#' @param sites list - a list of chm RasterLayers (see details)
+#' @param a numeric - single value for MovingWindow.
+#' @param b numeric - single value for MovingWindow.
+#' @param h numeric - maximum height of trees (in meter) to detect trees.
+#' @param vps list - a list of PointLayers with estimated positions of trees (see details)
+#' @param MIN numeric - the minimum area for crowns. Smaller poylgons are cropped.
+#' @param MAX numeric - the maximum area for crowns. Larger polygons are cropped.
+#' @param CHMfilter numeric - uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd. Default=1 no filter.
+#' @return returns a table with quality values for each fold (site) and calculated overall performance (mean values) for all sites.
 #' @details
-#' *'sides' and 'vps' must be lists with same order of chm and respective validation points.
-#' * parameters of the model: a,b,h,MIN,MAX should be calculated by 'TreeSegVal'
-#' * The overall performance is the mean of all sides.
-#' * For the details of the table values see 'BestSegVal'.
-#' @note The overall performance helps to estimate a precision for an AOI but does NOT give the "exact" precision. More folds will increase the
-#' expressiveness but will need more time to set Validation Points. Further the supervised setting of Validation Points are highly subjectiv and must not mean the real amount and or position of trees.
+#' *'sites' and 'vps' must be lists with the same order of chms and the respective validation points.
+#' * parameters of the model: a, b, h, MIN, MAX should be calculated by \code{\link{BestSegVal}}.
+#' * The overall performance is the mean of all sites.
+#' * For the details of the table values see \code{\link{BestSegVal}}.
+#' @note The overall performance helps to estimate the precision for an AOI but does NOT give the "exact" precision. More folds will increase the
+#' expressiveness but will need more time to set validation points. Further the supervised setting of validation points is highly subjectiv and does not have to correlate with the real amount and or position of trees.
 #' @author Andreas Schönberg
+#' @seealso \code{\link{BestSegVal}}
 #' @examples
 #' require(CENITH)
 #' require(mapview)
@@ -37,16 +38,16 @@
 #' vp2 <- rgdal::readOGR(vppath2)
 #' vp3 <- rgdal::readOGR(vppath3)
 #'
-#' # list all sides and validation points
+#' # list all sites and validation points
 #' chmlist <- list(chm,chm2,chm3)
 #' vplist <- list(vp,vp2,vp3)
 #'
 #' # run 3 fold cross validation with parameters computed by 'BestSegVal' (from example)
-#' cv <- CENITH::TreeSegCV(sides=chmlist,a=0.3,b=0.5,h=0.5,MIN=5,MAX=1000,CHMfilter=3,vps=vplist)
+#' cv <- CENITH::TreeSegCV(sites=chmlist,a=0.3,b=0.5,h=0.5,MIN=5,MAX=1000,CHMfilter=3,vps=vplist)
 #' cv
-#' ### the model trained with BestSegVal on side1 reaches a overall performance of 0.77 @ 0.12 for all tree sides.
-#' ### Note that the performance on sides 2 and 3 is even better than on side 1 where it was trained. This effect is caused probably because sides 2 and 3 are more homogenious.
-#' ### For sure this is just an example and it can happen that the performance on one side is worst. The overall mean performance is used to estimate the quality of an segmentation for an AOI by testing some subareas.
+#' ### the model trained with BestSegVal on site 1 reaches a overall performance of 0.77 @ 0.12 for all tree sites.
+#' ### Note that the performance on sites 2 and 3 is even better than on site 1 where it was trained. This effect is caused probably because sites 2 and 3 are more homogenious.
+#' ### For sure this is just an example and it can happen that the performance on one site is worst. The overall mean performance is used to estimate the quality of an segmentation for an AOI by testing some subareas.
 
 
 #' @export TreeSegCV
@@ -55,22 +56,22 @@
 ### tests
 # test cat codes with lists
 
-TreeSegCV <- function(sides,a,b,h,MIN,MAX,CHMfilter,vps){
+TreeSegCV <- function(sites,a,b,h,MIN,MAX,CHMfilter=1,vps){
   # cheking inputs
 
   # create dataframe to save informations
-  cat(paste0("### Cenith starts ",length(sides),"fold cross validation ###",sep = "\n"))
+  cat(paste0("### Cenith starts ",length(sites),"fold cross validation ###",sep = "\n"))
   result <- data.frame(matrix(nrow = length(b), ncol = 8)) # ncol = n information stored
   # iteration
   # loop to iterate on varibale
-  for (i in seq(1:length(sides))){
+  for (i in seq(1:length(sites))){
 
-    cat(paste0("starting fold ",as.factor(i),"/",as.factor(length(sides))," ",sep = "\n"))
+    cat(paste0("starting fold ",as.factor(i),"/",as.factor(length(sites))," ",sep = "\n"))
     # TreeSeg
-    seg <- try(TreeSeg(chm=sides[[i]],a,b,h,MIN,MAX,CHMfilter,silent=TRUE),silent = TRUE)
+    seg <- try(TreeSeg(chm=sites[[i]],a,b,h,MIN,MAX,CHMfilter,silent=TRUE),silent = TRUE)
     # handle error catch
     if(class(seg)=="try-error"){
-      cat(paste0(" !!! iteration a=",a," b=",b," h=",h," leads to an error on side:", names(sides[[i]]), "setting to 'NA' in results ",sep="\n"))
+      cat(paste0(" !!! iteration a=",a," b=",b," h=",h," leads to an error on site:", names(sites[[i]]), "setting to 'NA' in results ",sep="\n"))
       result[i, 1] <- a
       result[i, 2] <- b
       result[i, 3] <- h
@@ -124,7 +125,7 @@ TreeSegCV <- function(sides,a,b,h,MIN,MAX,CHMfilter,vps){
       area =  sum(seg$crownArea)#
 
       # write out informations in dataframe
-      result[i, 1] <- names(sides[[i]])
+      result[i, 1] <- names(sites[[i]])
       result[i, 2] <- a
       result[i, 3] <- b
       result[i, 4] <- h
@@ -156,7 +157,7 @@ TreeSegCV <- function(sides,a,b,h,MIN,MAX,CHMfilter,vps){
   # calc means
 
   # write out informations in dataframe
-  names(res)<- c("sides","a","b","height","total_seg","hit","vp","under","over","area","hitrate","underrate","overrate","Seg_qualy")
+  names(res)<- c("sites","a","b","height","total_seg","hit","vp","under","over","area","hitrate","underrate","overrate","Seg_qualy")
   res[nrow(res)+1, 1] <- "Mean"
   res[nrow(res), 2] <- a
   res[nrow(res), 3] <- b
@@ -178,7 +179,7 @@ TreeSegCV <- function(sides,a,b,h,MIN,MAX,CHMfilter,vps){
                                 (mean(res[1:nrow(res)-1,13])+ 2* mean(res[1:nrow(res)-1,12]))/2
                                      ,2))
 
-  cat(paste0("### Cenith finsihed ",length(sides),"fold cross validation ###",sep = "\n"))
+  cat(paste0("### Cenith finsihed ",length(sites),"fold cross validation ###",sep = "\n"))
   cat(paste0("Overall perfomance of model: ",res[nrow(res),14] ,sep = "\n"))
   return(res)
 }# end of function

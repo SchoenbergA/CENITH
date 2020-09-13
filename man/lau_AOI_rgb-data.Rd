@@ -3,10 +3,10 @@
 \docType{data}
 \name{lau_AOI_rgb - data}
 \alias{lau_AOI_rgb - data}
-\title{An rgb image for the tutorial AOI}
+\title{An RGB Raster image of the AOI for the tutorial}
 \format{
 \code{"raster::raster"}
 }
 \description{
-AOI rgb of Tutorial in the Lautaret vally in the france alps. Resolution 0.15 meter.
+RGB Raster of the AOI in the Lautaret valley in the French Alps. Resolution 0.15 m.
 }

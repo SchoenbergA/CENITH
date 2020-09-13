@@ -1,3 +1,13 @@
+# CENITH 0.1.0
+* release version for GitHub (not rdy for CRAN)
+
+# CNEITH 0.0.99.5
+* spelling corrections
+
+correction of spelling for all functions.
+some added links to other functions.
+
+
 # CENITH 0.0.99.4
 * bugfixes
 

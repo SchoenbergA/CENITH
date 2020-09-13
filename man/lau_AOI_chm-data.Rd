@@ -3,10 +3,10 @@
 \docType{data}
 \name{lau_AOI_chm - data}
 \alias{lau_AOI_chm - data}
-\title{A canopy height model (chm) for the tutorial AOI}
+\title{A canopy height model (chm) of the AOI for the tutorial}
 \format{
 \code{"raster::raster"}
 }
 \description{
-AOI chm of Tutorial in the Lautaret vally in the france alps. Resolution 0.15 meter.
+chm of the AOI in the Lautaret valley in the French Alps. Resolution 0.15 m.
 }

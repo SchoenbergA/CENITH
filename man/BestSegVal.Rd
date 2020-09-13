@@ -17,23 +17,23 @@ BestSegVal(
 )
 }
 \arguments{
-\item{chm}{raster - RasterLayer with Canopy height model}
+\item{chm}{raster -  Canopy Height Model RasterLayer derived form LiDAR data}
 
-\item{a}{numeric - function for MovingWindow}
+\item{a}{numeric - single value, combination of values or sequence for MovingWindow}
 
-\item{b}{numeric - function for MovingWindow}
+\item{b}{numeric - single value, combination of values or sequence for MovingWindow}
 
-\item{h}{numeric - minimum height of Trees to detect}
+\item{h}{numeric - single value, combination of values or a sequence for the maximum height of trees (in meter) to detect trees.}
 
-\item{vp}{Polygon - PointLayer with estimated Positions of Trees (see details).}
+\item{vp}{polygon - PointLayer with estimated Positions of trees (see details).}
 
-\item{MIN}{numeric - minimum area for Crowns in cell value. smaller poylgons are cropped. Default= 0}
+\item{MIN}{numeric - single value, combination of values or a sequence of minimum area for crowns. Smaller polygons are cropped Default= 0}
 
-\item{MAX}{numeric - maximum area for Crowns in cell value. larger polygons are cropped. Default=1000}
+\item{MAX}{numeric - the maximum area for crowns. Larger polygons are cropped. Default=1000}
 
-\item{skipCheck}{for development - bolean - if TRUE skips checking input data}
+\item{skipCheck}{for development - bolean - if TRUE skips checking input data and estimation of ETA.}
 
-\item{filter}{numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd (see details), default= 1 (no filtering.)}
+\item{filter}{numeric - single value, combination of values or a sequence for filtersize, uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd., default= 1 (no filter.)}
 }
 \value{
 returns a dataframe with several validation scores (see details).
@@ -43,30 +43,29 @@ Iterates over a,b,h,MIN and supports iterating over filtered chms. Uses supervis
 }
 \details{
 \itemize{
-\item 'start and go sleep' The function has implemented error catching. If an iteration would cause critical stop error, the loops continue. Returns NA for corrupted iterations.
-\item ETA: befor startimg the iterations up to 3 random combinations are tested and the processing time is recorded. The processing time is multiplied with the total amount of iterations to calculate the ETA.
-\item Input for a,b,h,MIN,filter supports - numeric, single, combination by c() or sequence by seq() to iterate over (e.G a=0.5 ; a=c(0.3,0.5) ; a=seq(0.1,0.9,0.05).
-\item filter - i could be helpful to filter the raw chm to 'smooth' small peaks and suppress the segmentation of many tiny objects.
-\item Validation Point - supervised computed pointlayer. Use a GIS like Qgis to set points where Trees are estimated (see Tutorial).
+\item 'start and go to sleep' The function has implemented error catching. If an iteration would cause a critical stop error, the loops continue. Returns NA for corrupted iterations.
+\item ETA: before starting the iterations, up to 3 random combinations are tested and the processing time is recorded. The processing time is multiplied with the total amount of iterations to calculate the ETA.
+\item Input for a, b, h, MIN and filter supports - numeric, single and combination: c(), or sequence: seq() to iterate over: (e.g a=0.5 ; a=c(0.3,0.5) ; a=seq(0.1,0.9,0.05).
+\item filter - it could be helpful to filter the raw chm to 'smooth' small peaks and 'holes' in crowns. Helps to suppress the segmentation of many tiny objects (like stones) and leads to polygons with less 'holes'.
+\item vp - validation point: supervised computed pointlayer. Use a GIS like Qgis to set points where Trees are estimated (see Tutorial).
 \item if 'skipCheck' = TRUE the input checking is skipped and the iterations start directly.
-\item ! even if the function support iteration over all parameters (except MAX due to estimated no need for MAX Crownareas to clip) it should not be used to iterate over sequences which would be useless.
 \item result table
 \itemize{
-\item a,b,height,MIN,chm - the used parameters
+\item a, b, height, MIN, chm - the used parameters
 \item total_seg - total computed segments
-\item hit/vp - amount of segments computed for Trees marked with Validation Points
+\item hit/vp - amount of segments computed for trees marked with validation points
 \item under - undersegmnetation in absolut values, amount of segments which contain more than one validation point.
 \item over - oversegmentation in absolut values, amount of segments without validation point
 \item area - the total area of segments
-\item hitrate - percentage of segments which contain exactly one validation point to total validation points.
-\item underrate - undersegmentation in relation to total segments.
-\item overrate - oversegmentation in relation to total segments.
-\item Seg_qualy - Quality of Segmentation:  hitrate @ combined over- and undersegmentations. A segment with more than one validation points is estimated to be better than segments without validation ponits. There fore the 'miss' value is (over+(2*under))/2.
+\item hitrate - percentage of segments which contain exactly one validation point in relation to the total validation points.
+\item underrate - undersegmentation in relation to the total segments.
+\item overrate - oversegmentation in relation to the total segments.
+\item Seg_qualy - quality of segmentation:  hitrate @ combined over- and undersegmentations. A segment with more than one validation points is estimated to be better than segments without validation points. Therefore the 'miss' value is (over+(2*under))/2.
 }
 }
 }
 \note{
-The 'Brute Force' approach to iterate over many parameters may result in very long time to finish. Preselected smaller samples may be more efficient (see Tutorial)
+The 'brute force' approach to iterate over many parameters may result in very long time to finish. Preselected smaller samples may be more efficient (see Tutorial).
 }
 \examples{
 ### NOTE: this example is used to show the usage of 'BestSegVal'. It is NOT used to show a workflow for best Results (see 'Tutorial' vignette for workflow strategies)

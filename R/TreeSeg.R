@@ -1,21 +1,21 @@
 #' Compute TreeCrown Segments
-#' @description computes polygon segments for TreeCrowns based on watershed algorithem
-#' @param chm raster - RasterLayer with Canopy height model
-#' @param a numeric - function for MovingWindow
-#' @param b numeric - function for MovingWindow
-#' @param h numeric - maximum height of Trees
-#' @param MIN numeric - minimum area for Crowns. smaller poylgons are cropped
-#' @param MAX numeric - maximum area for Crowns. larger polygons are cropped
-#' @param CHMfilter numeric - uses a sum filter on the chm with Moving Window of (x*x), must be odd. Default=1 no filtering (see details)
-#' @param silent bolean - if TRUE the function will not print any progress messages (default=FALSE)
+#' @description computes polygon segments for TreeCrowns based on watershed algorithm
+#' @param chm raster -  Canopy Height Model RasterLayer.
+#' @param a numeric - single value for MovingWindow.
+#' @param b numeric - single value for MovingWindow.
+#' @param h numeric - maximum height of trees (in meter) to detect trees.
+#' @param MIN numeric - the minimum area for crowns. Smaller polygons are cropped.
+#' @param MAX numeric - the maximum area for crowns. Larger polygons are cropped.
+#' @param CHMfilter numeric - uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd. Default=1 no filter.
+#' @param silent bolean - if TRUE the function will not print any progress messages (default=FALSE).
 #' @return returns a PolygonLayer with segments
-#' @details uses a Moving Window x*a+b to detetc local Maxima in a chm to compute TreeCrown Segments
-#' * parameter selection - use BestSegVal to automated detect best fitting parameters for a,b,h,MAX and filter.
-#' * filter - uses a sum filter with Moving Window of x, must be odd.
-#' @note 'brute force' segmentation with random parameters is not recommended. As it is not to just handsome test parameters. TreeSeg is mainly just to compute segments AFTER validation best fitting parameters with 'TreeSegVal'.
-#'
+#' @details uses a MovingWindow of x*a+b to detect local maxima in a chm to compute TreeCrown Segments
+#' * parameter selection - use \code{\link{BestSegVal}} to automated detect best fitting parameters for a, b, h, MIN and filter.
+#' @note A 'brute force' segmentation with random parameters is not recommended. TreeSeg is mainly used to compute segments AFTER the validation of best fitting parameters with \code{\link{BestSegVal}}.
+#' Further to estimate the quality of the computed polygons it is recommended to use \code{\link{TreeSegCV}} for a x-fold CrossValdiation over x different subareas. For full workflow see the 'Tutorial'.
+#' @seealso \code{\link{BestSegVal}}
+#' @seealso \code{\link{TreeSegCV}}
 #' @author Andreas Schönberg
-#' @references
 #' @examples
 #' # load data
 #' chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
