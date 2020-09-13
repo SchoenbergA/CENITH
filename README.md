@@ -6,5 +6,5 @@
 Install via devtools from github:
 
 ``` r
-devtools::install_github("SchoenbergA/CENITH@master",build_vignettes = TRUE))
+devtools::install_github("SchoenbergA/CENITH@master",build_vignettes = TRUE)
 ```
