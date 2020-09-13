@@ -2,46 +2,97 @@
 % Please edit documentation in R/BestSegVal.R
 \name{BestSegVal}
 \alias{BestSegVal}
-\title{Detect best input variables for TreeSegmentation by validation points}
+\title{Test for best performing parameters for TreeSeg TreeSegmentation using Validation Treepositions}
 \usage{
-BestSegVal(chm, a, b, h, vp)
+BestSegVal(
+  chm,
+  a,
+  b,
+  h,
+  vp,
+  MIN = 0,
+  MAX = 1000,
+  skipCheck = FALSE,
+  filter = 1
+)
 }
 \arguments{
-\item{chm}{raster - RasterLayer with Canopy height model}
+\item{chm}{raster -  Canopy Height Model RasterLayer derived form LiDAR data}
 
-\item{a}{numeric - function for MovingWindow}
+\item{a}{numeric - single value, combination of values or sequence for MovingWindow}
 
-\item{b}{numeric - function for MovingWindow}
+\item{b}{numeric - single value, combination of values or sequence for MovingWindow}
 
-\item{h}{numeric - maximum height of Trees}
+\item{h}{numeric - single value, combination of values or a sequence for the maximum height of trees (in meter) to detect trees.}
 
-\item{vp}{Polygon - PointLayer with estimated Positions of Trees.}
+\item{vp}{polygon - PointLayer with estimated Positions of trees (see details).}
+
+\item{MIN}{numeric - single value, combination of values or a sequence of minimum area for crowns. Smaller polygons are cropped Default= 0}
+
+\item{MAX}{numeric - the maximum area for crowns. Larger polygons are cropped. Default=1000}
+
+\item{skipCheck}{for development - bolean - if TRUE skips checking input data and estimation of ETA.}
+
+\item{filter}{numeric - single value, combination of values or a sequence for filtersize, uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd., default= 1 (no filter.)}
 }
 \value{
-returns a dataframe with several validation scores
+returns a dataframe with several validation scores (see details).
 }
 \description{
-uses supervised computed Treepositions to validate best fitting values for a,b and height.
+Iterates over a,b,h,MIN and supports iterating over filtered chms. Uses supervised computed Treepositions to validate best fitting values for a,b, height, MIN and CHM filters to detect trees.
 }
 \details{
 \itemize{
-\item Input for a,b,h supports - numeric, single, combination by c() or sequence by seq() to iterate over.
-\item Validation Point - supervised computed pointlayer. Use a GIS like Qgis to set points where Trees are estimated.
+\item 'start and go to sleep' The function has implemented error catching. If an iteration would cause a critical stop error, the loops continue. Returns NA for corrupted iterations.
+\item ETA: before starting the iterations, up to 3 random combinations are tested and the processing time is recorded. The processing time is multiplied with the total amount of iterations to calculate the ETA.
+\item Input for a, b, h, MIN and filter supports - numeric, single and combination: c(), or sequence: seq() to iterate over: (e.g a=0.5 ; a=c(0.3,0.5) ; a=seq(0.1,0.9,0.05).
+\item filter - it could be helpful to filter the raw chm to 'smooth' small peaks and 'holes' in crowns. Helps to suppress the segmentation of many tiny objects (like stones) and leads to polygons with less 'holes'.
+\item vp - validation point: supervised computed pointlayer. Use a GIS like Qgis to set points where Trees are estimated (see Tutorial).
+\item if 'skipCheck' = TRUE the input checking is skipped and the iterations start directly.
+\item result table
+\itemize{
+\item a, b, height, MIN, chm - the used parameters
+\item total_seg - total computed segments
+\item hit/vp - amount of segments computed for trees marked with validation points
+\item under - undersegmnetation in absolut values, amount of segments which contain more than one validation point.
+\item over - oversegmentation in absolut values, amount of segments without validation point
+\item area - the total area of segments
+\item hitrate - percentage of segments which contain exactly one validation point in relation to the total validation points.
+\item underrate - undersegmentation in relation to the total segments.
+\item overrate - oversegmentation in relation to the total segments.
+\item Seg_qualy - quality of segmentation:  hitrate @ combined over- and undersegmentations. A segment with more than one validation points is estimated to be better than segments without validation points. Therefore the 'miss' value is (over+(2*under))/2.
 }
+}
+}
+\note{
+The 'brute force' approach to iterate over many parameters may result in very long time to finish. Preselected smaller samples may be more efficient (see Tutorial).
 }
 \examples{
+### NOTE: this example is used to show the usage of 'BestSegVal'. It is NOT used to show a workflow for best Results (see 'Tutorial' vignette for workflow strategies)
+### further NOTE: to reduce time usage for the example only small iteartions are used to get an overlook for the functionallities.
 # load data
-chmpath <-system.file("extdata","exp_chm.tif",package = "CENITH")
+chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 chm <- raster::raster(chmpath)
-plot(chm)
-vppath <-system.file("extdata","exp_vp.shp",package = "CENITH")
+vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
 vp <- rgdal::readOGR(vppath)
-# run validation
-x <-BestSegVal(chm,seq(0.7,0.8,0.1),seq(0.5,0.7,0.1),c(13,8),vp)
-# view best accuracy (diffenrent iterations can have the same hit rate, but differ in other values)
-maxrow <- x[which.max(x$hit),] # search max vale but rturn only 1 value
-maxhit <- maxrow$hit
-x[which(x$hit==maxhit),]
+# take a look at the data (chm with estimated Treeposition)
+mapview(chm)+vp
+# start BestSegVal with parameters for Moving window and minimum height
+x <- BestSegVal(chm,a=c(0.3,0.5),b=c(0.5,0.7),h=c(0.1,1),vp = vp,filter=c(1,3))
+# check for best hitrate
+maxrow <- x[which.max(x$hitrate),] # search max vale but rturn only 1 value
+maxhit <- maxrow$hitrate
+x[which(x$hitrate==maxhit),]
+# visualise best combination (due to Segment Quality)
+y <- TreeSeg(chm,0.3,0.7,0.1,CHMfilter = 3)
+# show result segments with validation points and chm
+mapview(chm)+vp+y
+# BestSegVal based on this results keep a,b and filter 3 with MIN values to reduce oversegmentation and different heights.
+z <- BestSegVal(chm,a=0.3,b=0.7,h=c(0.1,0.2,0.5,1),MIN=c(10,100),vp = vp,filter=3)
+### Note that row 1 and 2 lead to much lesser oversegmnetation just differ in area.
+# visualize
+v <- TreeSeg(chm,0.3,0.7,0.1,MIN=10,CHMfilter = 3)
+mapview(chm)+vp+v
 }
 \author{
 Andreas Schönberg

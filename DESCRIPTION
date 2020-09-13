@@ -1,6 +1,6 @@
 Package: CENITH
 Title: Segmentation tool
-Version: 0.0.0.94
+Version: 0.1.0
 Authors@R: 
     person(given = "Andreas",
            family = "Schönberg",
@@ -13,3 +13,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

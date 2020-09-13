@@ -1,3 +1,62 @@
+# CENITH 0.1.0
+* release version for GitHub (not rdy for CRAN)
+
+# CNEITH 0.0.99.5
+* spelling corrections
+
+correction of spelling for all functions.
+some added links to other functions.
+
+
+# CENITH 0.0.99.4
+* bugfixes
+
+fixed TreeSegCV - now if a combination leads to an error the error is printen correctly and the function continues.
+
+# CENITH 0.0.99.3
+* new features
+update vignette - add result='hide' to chunks for increased overview in tutorial.
+
+# CENITH 0.0.99.2
+
+* new features
+update vignette - add part 2 (BestSegVal) and 3 (TreeSegCV) to vignette
+add example data - chm and rgb for the AOI
+
+# CENITH 0.0.99.1
+
+* new features
+add vignette - tutorial part 1 treseg 
+
+# CENITH 0.0.99.0
+Prerelease version 0.99
+
+* new features
+CENITH - package - add package script with imports and descriptions
+add Example Data for Crossvalidation
+
+* bugfixes
+some major changes in BestSegVal cat codes.
+
+# CENITH 0.0.0.97
+* new features
+complete clean up of Development functions (keep stable version of BestSegVal)
+
+TreeSegVal - now iterates over a,b,h,MIN, and chm filters. Advanced ETA estimation added (now uses full iterations of TreeSeg). Further cleand up "cat" codes to more easy see the ETA.
+
+Added all new Example data.
+
+# CENITH 0.0.0.96
+* new features
+TreeSegValEXPRMTL - advanced version of TreeSegVal which additionally iterates over MIN and supports filtering for chm.
+
+# CENITH 0.0.0.95
+* bugfixes
+TreeSegVal returns correct values for "Segment quality"
+
+* new features
+TreeSegCV - function to perform an n fold cross validation. Uses values (estimated with TreeSegVal recommended) to test the quality on other sides to receive a quality estimation of the inout values for the Segmentation in the AOI.
+
 # CENITH 0.0.0.94
 Update for MIN and MAX
 
