@@ -4,7 +4,7 @@
 #' @param a numeric - single value, combination of values or sequence for MovingWindow
 #' @param b numeric - single value, combination of values or sequence for MovingWindow
 #' @param h numeric - single value, combination of values or a sequence for the maximum height of trees (in meter) to detect trees.
-#' @param vp polygon - PointLayer with estimated Positions of trees (see details).
+#' @param vp shp - PointLayer with estimated Positions of trees (see details).
 #' @param MIN numeric - single value, combination of values or a sequence of minimum area for crowns. Smaller polygons are cropped Default= 0
 #' @param MAX numeric - the maximum area for crowns. Larger polygons are cropped. Default=1000
 #' @param filter numeric - single value, combination of values or a sequence for filtersize, uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd., default= 1 (no filter.)

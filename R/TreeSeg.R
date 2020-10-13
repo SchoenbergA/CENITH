@@ -37,7 +37,7 @@
 
 TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000,CHMfilter=1,silent=FALSE){
   # function ForestTools vwf cleaned from cat code #############################
-  vwf_clean <-function (CHM, winFun, minHeight = NULL, maxWinDiameter = 99,
+  vwf_clean <-function (CHM, winFun, minHeight = NULL, maxWinDiameter = NULL,
                               minWinNeib = "queen", verbose = FALSE)
   {
     if (verbose)
