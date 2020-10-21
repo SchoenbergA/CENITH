@@ -1,12 +1,12 @@
 #' CENITH Tree Segmentation Tool
 #'
-#' @name LEGION - package
+#' @name CENITH - package
 #' @docType package
 #' @title CENITH Tree Segmentation Tool
 #' @description In general the \code{CENITH} package is a wrapper for the \code{ForestTools} package (Andrew Plowright and Jean-Romain Roussel,2020).
 #' \code{CENITH} is designed to test for best fitting parameters to performe a Tree Segmentation. Furher it provides a cross-validation for tree segmentation.
 #'
-#' @note For a more independent and stable package the source code of some fucntions provided by \code{ForestTools} is used instead of the respective function.
+#' @note For a more independent and stable package the source code of some functions provided by \code{ForestTools} is used instead of the respective function.
 #' Possible changes of \code{ForestTools} in the future will NOT change the workflow of \code{CENITH}
 #'
 #' @author Andreas Schönberg
