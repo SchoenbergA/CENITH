@@ -30,8 +30,8 @@ returns a table with quality values for each fold (site) and calculated overall 
 performs an n-fold cross validation to estimate the performance of a segmentation 'model' for an AOI
 }
 \details{
-*'sites' and 'vps' must be lists with the same order of chms and the respective validation points.
 \itemize{
+\item 'sites' and 'vps' must be lists with the same order of chm and the respective validation points.
 \item parameters of the model: a, b, h, MIN, MAX should be calculated by \code{\link{BestSegVal}}.
 \item The overall performance is the mean of all sites.
 \item For the details of the table values see \code{\link{BestSegVal}}.

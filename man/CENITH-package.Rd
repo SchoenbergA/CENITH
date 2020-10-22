@@ -12,7 +12,7 @@ In general the \code{CENITH} package is a wrapper for the \code{ForestTools} pac
 CENITH Tree Segmentation Tool
 }
 \note{
-For a more independent and stable package the source code of some fucntions provided by \code{ForestTools} is used instead of the respective function.
+For a more independent and stable package the source code of some functions provided by \code{ForestTools} is used instead of the respective function.
 Possible changes of \code{ForestTools} in the future will NOT change the workflow of \code{CENITH}
 }
 \author{

@@ -49,6 +49,10 @@ A 'brute force' segmentation with random parameters is not recommended. TreeSeg 
 Further to estimate the quality of the computed polygons it is recommended to use \code{\link{TreeSegCV}} for a x-fold CrossValdiation over x different subareas. For full workflow see the 'CENITH_Tutorial'.
 }
 \examples{
+# load packages
+require(CENITH)
+require(raster)
+require(mapview)
 # load data
 chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 chm <- raster::raster(chmpath)
@@ -56,12 +60,12 @@ chm <- raster::raster(chmpath)
 plot(chm)
 # NOTE: the exmple should NOT show to get optimal results (for this see 'BestSegVal')
 # start segmentation
-x <- TreeSeg(chm,a=0.3,b=0.7,h=13)
+x <- TreeSeg(chm,a=0.3,b=0.5,h=1)
 length(x)# amount of trees
 # compare result with chm
 mapview(chm)+x
 # clip min and or max polygons
-y <-TreeSeg(chm,a=0.3,b=0.7,h=13,MIN=10)
+y <-TreeSeg(chm,a=0.2,b=0.5,h=2,MIN=10,MAX=100)
 length(y)# amount of trees
 mapview(chm)+y
 }

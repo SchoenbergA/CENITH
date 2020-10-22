@@ -68,6 +68,11 @@ Iterates over a,b,h,MIN and supports iterating over filtered chms. Uses supervis
 The 'brute force' approach to iterate over many parameters may result in very long time to finish. Preselected smaller samples may be more efficient (see Tutorial).
 }
 \examples{
+# load packages
+require(CENITH)
+require(mapview)
+require(raster)
+require(rgdal)
 ### NOTE: this example is used to show the usage of 'BestSegVal'. It is NOT used to show a workflow for best Results (see 'Tutorial' vignette for workflow strategies)
 ### further NOTE: to reduce time usage for the example only small iteartions are used to get an overlook for the functionallities.
 # load data
