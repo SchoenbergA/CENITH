@@ -68,7 +68,7 @@
 
 
 BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
-  cat(paste0("### Cenith starts Best Parameter Validation ###",sep = "\n"))
+  cat(paste0("### CENITH starts Best Parameter Validation ###",sep = "\n"))
   if(skipCheck==FALSE){
     cat(paste0("checking input ...",sep = "\n"))
     #check for wrong sizes input
@@ -243,7 +243,7 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
   loop_a <- function(chm,a,b,h,vp,MIN,MAX){
     for (i in seq(1:length(a))){
       cat("",sep = "\n")
-      cat(paste0("### Cenith starts iterating over a ",as.factor(i),"/",as.factor(length(a))," ",sep = "\n"))
+      cat(paste0("### CENITH starts iterating over a ",as.factor(i),"/",as.factor(length(a))," ",sep = "\n"))
       if(i==1){
         res <-loop_b(chm,a[i],b,h,vp,MIN,MAX)
 
@@ -264,7 +264,7 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
   loop_h <- function(chm,a,b,h,vp,MIN,MAX){
     for (c in seq(1:length(h))){
 
-      cat(paste0("### Cenith starts iterating over h ",as.factor(c),"/",as.factor(length(h))," ###",sep = "\n"))
+      cat(paste0("### CENITH starts iterating over h ",as.factor(c),"/",as.factor(length(h))," ###",sep = "\n"))
       if(c==1){
         res <-loop_a(chm,a,b,h[c],vp,MIN,MAX)
       }    else {
@@ -279,7 +279,7 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
   loop_MIN <- function(chm,a,b,h,vp,MIN,MAX){
     for (k in seq(1:length(MIN))){
 
-      cat(paste0("### Cenith starts iterating over MIN ",as.factor(k),"/",as.factor(length(MIN))," ###",sep = "\n"))
+      cat(paste0("### CENITH starts iterating over MIN ",as.factor(k),"/",as.factor(length(MIN))," ###",sep = "\n"))
       if(k==1){
         res <-loop_h(chm,a,b,h,vp,MIN[k],MAX)
       }    else {
@@ -299,7 +299,7 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
 
   for(l in seq(1:length(filter))){
     cat("",sep = "\n")
-    cat(paste0("### Cenith starts iterating over CHM ",as.factor(l)),"/",(length(filter))," ###")
+    cat(paste0("### CENITH starts iterating over CHM ",as.factor(l)),"/",(length(filter))," ###")
     cat("",sep = "\n")
     if(l==1){
       #for no filtering with 1
@@ -321,7 +321,7 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
 
   # output
   cat("",sep = "\n")
-  cat(paste0("### Cenith finished Best Parameters Validation ###"),sep = "\n")
+  cat(paste0("### CENITH finished Best Parameters Validation ###"),sep = "\n")
 
   names(res)<- c("a","b","height","total_seg","hit/vp","under","over","area","hitrate","underrate","overrate","Seg_qualy","MIN","chm")
   #names(res)<- c("a","b","height","hit","tp/vp_rate","tpos/vp","miss","area","empty")

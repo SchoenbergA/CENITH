@@ -1,4 +1,4 @@
-#' TreeSegCV
+#' N-Fold Cross-validation for TreeCrown Segments
 #' @description performs an n-fold cross validation to estimate the performance of a segmentation 'model' for an AOI
 #' @param sites list - a list of chm RasterLayers (see details)
 #' @param a numeric - single value for MovingWindow.
@@ -60,7 +60,7 @@ TreeSegCV <- function(sites,a,b,h,MIN,MAX,CHMfilter=1,vps){
   # cheking inputs
 
   # create dataframe to save informations
-  cat(paste0("### Cenith starts ",length(sites),"-fold cross validation ###",sep = "\n"))
+  cat(paste0("### CENITH starts ",length(sites),"-fold cross-validation ###",sep = "\n"))
   result <- data.frame(matrix(nrow = length(b), ncol = 8)) # ncol = n information stored
   # iteration
   # loop to iterate on varibale
@@ -156,13 +156,13 @@ TreeSegCV <- function(sites,a,b,h,MIN,MAX,CHMfilter=1,vps){
 
   # calc means
 
-  # write out informations in dataframe
+  # write out information in dataframe
   names(res)<- c("sites","a","b","height","total_seg","hit","vp","under","over","area","hitrate","underrate","overrate","Seg_qualy")
   res[nrow(res)+1, 1] <- "Mean"
   res[nrow(res), 2] <- a
   res[nrow(res), 3] <- b
   res[nrow(res), 4] <- h
-  #abolut results
+  # absolute results
   res[nrow(res), 5] <- mean(res[1:nrow(res)-1,5])
   res[nrow(res), 6] <- mean(res[1:nrow(res)-1,6])
   res[nrow(res), 7] <- mean(res[1:nrow(res)-1,7])
@@ -179,8 +179,8 @@ TreeSegCV <- function(sites,a,b,h,MIN,MAX,CHMfilter=1,vps){
                                 (mean(res[1:nrow(res)-1,13])+ 2* mean(res[1:nrow(res)-1,12]))/2
                                      ,2))
 
-  cat(paste0("### Cenith finsihed ",length(sites),"fold cross validation ###",sep = "\n"))
-  cat(paste0("Overall perfomance of model: ",res[nrow(res),14] ,sep = "\n"))
+  cat(paste0("### CENITH finished ",length(sites),"fold cross validation ###",sep = "\n"))
+  cat(paste0("Overall performance of model: ",res[nrow(res),14] ,sep = "\n"))
   return(res)
 }# end of function
 

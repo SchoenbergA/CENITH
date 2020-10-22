@@ -25,7 +25,7 @@
 #' chm <- raster::raster(chmpath)
 #' # take a look on the data
 #' plot(chm)
-#' # NOTE: the exmple should NOT show to get optimal results (for this see 'BestSegVal')
+#' # NOTE: the example should NOT show to get optimal results (for this see 'BestSegVal')
 #' # start segmentation
 #' x <- TreeSeg(chm,a=0.3,b=0.5,h=1)
 #' length(x)# amount of trees
@@ -244,13 +244,13 @@ TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000,CHMfilter=1,silent=FALSE){
   # check filter
   if(CHMfilter!=1){
     if(silent==FALSE){
-    cat(paste0("### Cenith computes ",CHMfilter,"*",CHMfilter," sum filter for chm ###",sep = "\n"))
+    cat(paste0("### CENITH computes ",CHMfilter,"*",CHMfilter," sum filter for chm ###",sep = "\n"))
     }
     chm <-raster::focal(chm,w=matrix(1/(CHMfilter*CHMfilter),nrow=CHMfilter,ncol=CHMfilter),fun=sum,na.rm=TRUE)
   }
 
   if(silent==FALSE){
-  cat(paste0("### Cenith starts segmentation ###",sep = "\n"))
+  cat(paste0("### CENITH starts segmentation ###",sep = "\n"))
   }
   # compute Treepositions
   tpos = vwf_clean(chm,
@@ -270,17 +270,17 @@ TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000,CHMfilter=1,silent=FALSE){
 
   # clip min and max
   if(silent==FALSE){
-    cat(paste0("### Cenith starts cropping to MIN and MAX ###",sep = "\n"))
+    cat(paste0("### CENITH starts cropping to MIN and MAX ###",sep = "\n"))
   }
   seg_min <- seg[seg$crownArea>MIN,]
   seg_max <- seg_min[seg_min$crownArea<MAX,]
   seg <- seg_max
   if(length(seg)==0){
-    stop(" !!! after cliping to MIN and MAX no polygons are returned, setting results to NA",sep = "\n")}
+    stop(" !!! after clipping to MIN and MAX no polygons are returned, setting results to NA",sep = "\n")}
 
   if(silent==FALSE){
     cat(paste0("clipped: ",length(tpos)-length(seg)," polygons. ", length(seg)," trees remaining",sep = "\n"))
-    cat(paste0("### Cenith finished segmentation ###",sep = "\n"))
+    cat(paste0("### CENITH finished segmentation ###",sep = "\n"))
 
   }
   return(seg)
