@@ -1,20 +1,3 @@
-# CENITH 0.1.1
-patch version
-
-* bugfixes general
-For all functions using 'TreeSeg' - In TreeSeg now the window diameter is not set to a maximum. This leads to no more errors is the windiameter is wider.
-Correct name for CENITH-Package.R in help is used.
-Set depending packages in description.
-
-* bugfixes and updates
-TreeSeg - default MaxWinDiameter in subfucntion is now set to NULL. 
-TreeSeg - corrected example added. Added require() to example.
-BestSegVal - now 3rd try in ETA check works. Further now continues even if all 3 trys do not work.
-BestSegVal - spelling corrections and added some cat() codes.
-BestSegVal - add require() to example.
-TreeSegCV - corrections in help
-TreeSegCV - spelling corrections
-
 # CENITH 0.1.0
 * release version for GitHub (not rdy for CRAN)
 

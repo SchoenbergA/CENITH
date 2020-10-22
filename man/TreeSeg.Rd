@@ -46,7 +46,7 @@ uses a MovingWindow of x*a+b to detect local maxima in a chm to compute TreeCrow
 }
 \note{
 A 'brute force' segmentation with random parameters is not recommended. TreeSeg is mainly used to compute segments AFTER the validation of best fitting parameters with \code{\link{BestSegVal}}.
-Further to estimate the quality of the computed polygons it is recommended to use \code{\link{TreeSegCV}} for a x-fold CrossValdiation over x different subareas. For full workflow see the 'CENITH_Tutorial'.
+Further to estimate the quality of the computed polygons it is recommended to use \code{\link{TreeSegCV}} for a x-fold CrossValdiation over x different subareas. For full workflow see the 'Tutorial'.
 }
 \examples{
 # load data
@@ -66,7 +66,9 @@ length(y)# amount of trees
 mapview(chm)+y
 }
 \seealso{
-\code{\link{BestSegVal}},\code{\link{TreeSegCV}}
+\code{\link{BestSegVal}}
+
+\code{\link{TreeSegCV}}
 }
 \author{
 Andreas Schönberg

@@ -10,7 +10,7 @@
 #' @param CHMfilter numeric - uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd. Default=1 no filter.
 #' @return returns a table with quality values for each fold (site) and calculated overall performance (mean values) for all sites.
 #' @details
-#' * 'sites' and 'vps' must be lists with the same order of chm and the respective validation points.
+#' *'sites' and 'vps' must be lists with the same order of chms and the respective validation points.
 #' * parameters of the model: a, b, h, MIN, MAX should be calculated by \code{\link{BestSegVal}}.
 #' * The overall performance is the mean of all sites.
 #' * For the details of the table values see \code{\link{BestSegVal}}.
@@ -60,7 +60,7 @@ TreeSegCV <- function(sites,a,b,h,MIN,MAX,CHMfilter=1,vps){
   # cheking inputs
 
   # create dataframe to save informations
-  cat(paste0("### Cenith starts ",length(sites),"-fold cross validation ###",sep = "\n"))
+  cat(paste0("### Cenith starts ",length(sites),"fold cross validation ###",sep = "\n"))
   result <- data.frame(matrix(nrow = length(b), ncol = 8)) # ncol = n information stored
   # iteration
   # loop to iterate on varibale

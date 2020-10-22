@@ -25,7 +25,7 @@ BestSegVal(
 
 \item{h}{numeric - single value, combination of values or a sequence for the maximum height of trees (in meter) to detect trees.}
 
-\item{vp}{shp - PointLayer with estimated Positions of trees (see details).}
+\item{vp}{polygon - PointLayer with estimated Positions of trees (see details).}
 
 \item{MIN}{numeric - single value, combination of values or a sequence of minimum area for crowns. Smaller polygons are cropped Default= 0}
 

@@ -12,14 +12,11 @@
 #' @details uses a MovingWindow of x*a+b to detect local maxima in a chm to compute TreeCrown Segments
 #' * parameter selection - use \code{\link{BestSegVal}} to automated detect best fitting parameters for a, b, h, MIN and filter.
 #' @note A 'brute force' segmentation with random parameters is not recommended. TreeSeg is mainly used to compute segments AFTER the validation of best fitting parameters with \code{\link{BestSegVal}}.
-#' Further to estimate the quality of the computed polygons it is recommended to use \code{\link{TreeSegCV}} for a x-fold CrossValdiation over x different subareas. For full workflow see the 'CENITH_Tutorial'.
-#' @seealso \code{\link{BestSegVal}},\code{\link{TreeSegCV}}
+#' Further to estimate the quality of the computed polygons it is recommended to use \code{\link{TreeSegCV}} for a x-fold CrossValdiation over x different subareas. For full workflow see the 'Tutorial'.
+#' @seealso \code{\link{BestSegVal}}
+#' @seealso \code{\link{TreeSegCV}}
 #' @author Andreas Schönberg
 #' @examples
-#' # load packages
-#' require(CENITH)
-#' require(raster)
-#' require(mapview)
 #' # load data
 #' chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 #' chm <- raster::raster(chmpath)
@@ -27,12 +24,12 @@
 #' plot(chm)
 #' # NOTE: the exmple should NOT show to get optimal results (for this see 'BestSegVal')
 #' # start segmentation
-#' x <- TreeSeg(chm,a=0.3,b=0.5,h=1)
+#' x <- TreeSeg(chm,a=0.3,b=0.7,h=13)
 #' length(x)# amount of trees
 #' # compare result with chm
 #' mapview(chm)+x
 #' # clip min and or max polygons
-#' y <-TreeSeg(chm,a=0.2,b=0.5,h=2,MIN=10,MAX=100)
+#' y <-TreeSeg(chm,a=0.3,b=0.7,h=13,MIN=10)
 #' length(y)# amount of trees
 #' mapview(chm)+y
 #' @export TreeSeg
@@ -40,7 +37,7 @@
 
 TreeSeg <- function(chm=NULL,a,b,h,MIN=0,MAX=1000,CHMfilter=1,silent=FALSE){
   # function ForestTools vwf cleaned from cat code #############################
-  vwf_clean <-function (CHM, winFun, minHeight = NULL, maxWinDiameter = NULL,
+  vwf_clean <-function (CHM, winFun, minHeight = NULL, maxWinDiameter = 99,
                               minWinNeib = "queen", verbose = FALSE)
   {
     if (verbose)
