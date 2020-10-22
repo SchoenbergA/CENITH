@@ -4,7 +4,7 @@
 #' @param a numeric - single value, combination of values or sequence for MovingWindow
 #' @param b numeric - single value, combination of values or sequence for MovingWindow
 #' @param h numeric - single value, combination of values or a sequence for the maximum height of trees (in meter) to detect trees.
-#' @param vp polygon - PointLayer with estimated Positions of trees (see details).
+#' @param vp shp - PointLayer with estimated Positions of trees (see details).
 #' @param MIN numeric - single value, combination of values or a sequence of minimum area for crowns. Smaller polygons are cropped Default= 0
 #' @param MAX numeric - the maximum area for crowns. Larger polygons are cropped. Default=1000
 #' @param filter numeric - single value, combination of values or a sequence for filtersize, uses a sum filter on the chm with a MovingWindow of (x*x), which must be odd., default= 1 (no filter.)
@@ -32,6 +32,11 @@
 #' @author Andreas Schönberg
 #' @note The 'brute force' approach to iterate over many parameters may result in very long time to finish. Preselected smaller samples may be more efficient (see Tutorial).
 #' @examples
+#' # load packages
+#' require(CENITH)
+#' require(mapview)
+#' require(raster)
+#' require(rgdal)
 #' ### NOTE: this example is used to show the usage of 'BestSegVal'. It is NOT used to show a workflow for best Results (see 'Tutorial' vignette for workflow strategies)
 #' ### further NOTE: to reduce time usage for the example only small iteartions are used to get an overlook for the functionallities.
 #' # load data
@@ -63,8 +68,9 @@
 
 
 BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
+  cat(paste0("### Cenith starts Best Parameter Validation ###",sep = "\n"))
   if(skipCheck==FALSE){
-    cat(paste0("### Cenith checking input ###",sep = "\n"))
+    cat(paste0("checking input ...",sep = "\n"))
     #check for wrong sizes input
     if(any(filter %% 2 == 0)){
       stop("selected 'filter' sizes contain even values (use odd values only)")
@@ -82,7 +88,8 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
 
     # estimate time remaining, trying up to tree iterations, if all fail, skipping time estimation
 
-    cat(paste0("### Cenith calculates estimate time to finish ###",sep = "\n"))
+    cat(paste0("calculating estimate time to finish ...",sep = "\n"))
+    cat(" ",sep = "\n")
 
     start <- Sys.time()
 
@@ -96,14 +103,16 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
         start <- Sys.time()
         ETA3 <-try(TreeSeg(chm,a=sample(a,1),b=sample(b,1),h=sample(h,1),MIN=sample(MIN,1),MAX,CHMfilter=1,silent=TRUE),silent = T)
         stop  <- Sys.time()
-        if(class(ETA2)=="try-error"){
-          stop("unable to calculate ETA, tried 3 random iterations, skipping. Please restart.")}
+        if(class(ETA3)=="try-error"){
+          cat("unable to calculate ETA, tried 3 random iterations, skipping.",sep = "\n")
+          cat("#----------------------------------------#",sep = "\n")
+          stop <- start}
       }
     }
 
 
 
-
+  if(start!=stop){
     # amount of iterations
     na <- length(a)
     nb <- length(b)
@@ -121,7 +130,7 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
     cat(paste("requires",niter,"iterations @",round(timedif,4),units(timedif),"per iteration"),sep="\n")
     cat(paste("estimated",round(eta,4),units(timedif),"to finish"),sep = "\n")
     cat("#----------------------------------------#",sep = "\n")
-
+  }
 
     # warning / wait for input if niter is too big
     #if(niter>50&&niter<100){
@@ -312,7 +321,7 @@ BestSegVal<- function(chm,a,b,h,vp,MIN=0,MAX=1000,skipCheck=FALSE,filter=1){
 
   # output
   cat("",sep = "\n")
-  cat(paste0("### Cenith finsihed Best Parameters Validation ###"),sep = "\n")
+  cat(paste0("### Cenith finished Best Parameters Validation ###"),sep = "\n")
 
   names(res)<- c("a","b","height","total_seg","hit/vp","under","over","area","hitrate","underrate","overrate","Seg_qualy","MIN","chm")
   #names(res)<- c("a","b","height","hit","tp/vp_rate","tpos/vp","miss","area","empty")
