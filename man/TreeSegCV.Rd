@@ -60,6 +60,10 @@ chm3 <- raster::raster(chmpath3)
 vp <- rgdal::readOGR(vppath)
 vp2 <- rgdal::readOGR(vppath2)
 vp3 <- rgdal::readOGR(vppath3)
+# handle CRS string
+crs(vp) <-crs(chm)
+crs(vp2)<-crs(chm)
+crs(vp3)<-crs(chm)
 
 # list all sites and validation points
 chmlist <- list(chm,chm2,chm3)
