@@ -44,6 +44,8 @@
 #' chm <- raster::raster(chmpath)
 #' vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
 #' vp <- rgdal::readOGR(vppath)
+#' # handle CRS string
+#' crs(vp)<-crs(chm)
 #' # take a look at the data (chm with estimated Treeposition)
 #' mapview(chm)+vp
 #' # start BestSegVal with parameters for Moving window and minimum height

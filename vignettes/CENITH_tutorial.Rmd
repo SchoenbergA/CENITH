@@ -22,7 +22,7 @@ knitr::opts_chunk$set(fig.width = 5)
 
 Performing a tree segmentation (computing polygons for each tree crown) can be very difficult. The  package 'ForestTools' delivers a powerful watershed algorithm which uses a canopy height model (CHM). It distiguishes the tree crowns by the height value within a MovingWindow. The peaks in the chm represent the tree positions (the highest points) and the borders to the next tree crown is when the height increases again after decreasing from the peak.
 
-One major problem is that it is hard to estimate the quality of those computed polygons. But in science it is nessecary to validate the quality by giving the user an error value. Further the input parameters can be modified in several ways causing hundreds of possible combinations of parameter values.
+One major problem is that it is hard to estimate the quality of those computed polygons. Further the input parameters can be modified in several ways causing hundreds of possible combinations of parameter values.
 
 CENITH comes with several functions for automated testing of the input parameters and validation strategies for scientific comprehensible results.
 
@@ -205,6 +205,10 @@ Now let's take a look on the test area (which we have already used before) and t
 # load validation points for testing area
 vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
 vp <- rgdal::readOGR(vppath)
+# handle CRS string
+crs(chm)
+crs(vp) # uses the same projection but has additional strings
+crs(vp)<-crs(chm) # set crs
 # view
 mapview(chm)+vp+AOIchm
 
@@ -364,6 +368,10 @@ vp1 <- rgdal::readOGR(vppath)
 vp2 <- rgdal::readOGR(vppath2)
 vp3 <- rgdal::readOGR(vppath3)
 
+# handle CRS string
+crs(vp1)<-crs(chm)
+crs(vp2)<-crs(chm)
+crs(vp3)<-crs(chm)
 # view all test areas and vp
 mapview(chm1)+chm2+chm3+vp1+vp2+vp3+AOIchm
 
@@ -400,12 +408,13 @@ As mentioned before in the tutorial CENITH is used to detect trees. For shrubs i
   - set a threshold for minimum height to differentiate shrubs from trees (and also non vegetation)
 * first 'BestSegVal' run
   - use wide ranges for 'a' and 'b' with less steps (e.g. 0.1 to 1.0)
-  - use minimum height ('h') to avoid shrubs to be detected. (maybe try some 'h' values around the threshold of shrubs)
+  - use minimum height ('h') to avoid shrubs to be detected. (maybe try some 'h' values around the        threshold of shrubs)
   - view best result with 'TreeSeg' (plot resulting segments e.g. via 'mapview' + chm + vp)
   - evaluate which values lead to high performance
 * second run
   - use more steps for 'a' and 'b' within the range of high performance of the first run (e.g. if in first run from 0.1 to 1.0 only 0.2,0.3 and 0.4 lead to high hitrates, then use seq(0.15,0.45,0.05))
   - again view best results and evaluate!
+  
 * fine tuning run
   - use 'CHMfilter' and 'MIN' depending on evaluated problems 
   - if there are many small "holes" or many small "bumps" in the segmentation use 'CHMfilter' to smooth the CHM
@@ -416,6 +425,8 @@ As mentioned before in the tutorial CENITH is used to detect trees. For shrubs i
 * perform segmentation for AOI
   - if the result of the CV is "good enough" use 'TreeSeg' for the AOI with the tuned parameters.
   NOTE: it is possible that the AOI extent is too large for 'TreeSeg'. Solutions are part of current work on CENITH. Update coming soon ;-)
+  
+  
   
   Best regards
   Andreas Schönberg
