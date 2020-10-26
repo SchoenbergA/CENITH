@@ -1,3 +1,15 @@
+# CENITH 0.1.2
+patch version
+
+* bugfixes
+With a new rdgal version now the strings for the vector example data contain additional +towgs84=0,0,0,0,0,0,0.
+With those differnet strings (even if projcetion is still teh same) some functions and the vignette would not work.
+Fixed by setting the crs of the vectors to crs of rasters by hand in example and vignette code.
+
+* update vignette
+vignettes now come in hmtl format for direct download via github.
+Install without "buildvignette=T" is now recommended.
+
 # CENITH 0.1.1
 patch version
 
