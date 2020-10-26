@@ -2,7 +2,7 @@
 % Please edit documentation in R/TreeSegCV.R
 \name{TreeSegCV}
 \alias{TreeSegCV}
-\title{TreeSegCV}
+\title{N-Fold Cross-validation for TreeCrown Segments}
 \usage{
 TreeSegCV(sites, a, b, h, MIN, MAX, CHMfilter = 1, vps)
 }

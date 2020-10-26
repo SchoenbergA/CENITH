@@ -58,7 +58,7 @@ chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
 chm <- raster::raster(chmpath)
 # take a look on the data
 plot(chm)
-# NOTE: the exmple should NOT show to get optimal results (for this see 'BestSegVal')
+# NOTE: the example should NOT show to get optimal results (for this see 'BestSegVal')
 # start segmentation
 x <- TreeSeg(chm,a=0.3,b=0.5,h=1)
 length(x)# amount of trees
