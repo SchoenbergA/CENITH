@@ -76,10 +76,8 @@ require(rgdal)
 ### NOTE: this example is used to show the usage of 'BestSegVal'. It is NOT used to show a workflow for best Results (see 'Tutorial' vignette for workflow strategies)
 ### further NOTE: to reduce time usage for the example only small iteartions are used to get an overlook for the functionallities.
 # load data
-chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
-chm <- raster::raster(chmpath)
-vppath <-system.file("extdata","lau_vp.shp",package = "CENITH")
-vp <- rgdal::readOGR(vppath)
+chm <- raster::raster(system.file("extdata","lau_chm.tif",package = "CENITH"))
+vp <- rgdal::readOGR(system.file("extdata","lau_vp.shp",package = "CENITH"))
 # handle CRS string
 crs(vp)<-crs(chm)
 # take a look at the data (chm with estimated Treeposition)

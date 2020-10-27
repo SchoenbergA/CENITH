@@ -21,8 +21,7 @@
 #' require(raster)
 #' require(mapview)
 #' # load data
-#' chmpath <-system.file("extdata","lau_chm.tif",package = "CENITH")
-#' chm <- raster::raster(chmpath)
+#' chm <- raster::raster(system.file("extdata","lau_chm.tif",package = "CENITH"))
 #' # take a look on the data
 #' plot(chm)
 #' # NOTE: the example should NOT show to get optimal results (for this see 'BestSegVal')
