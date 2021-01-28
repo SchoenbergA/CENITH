@@ -9,10 +9,19 @@
 
 
 
+## CENITH - Segmentation
+This package is a wrapper for semi-automated segmentation based on watershed algorithm.
+It deliveres functions to determine best fitting parameters  to receive higher precision.
+
+For an introduction in CENITH see the vignette: CENITH_tutorial.html
 
 ## Installation
 Install via devtools from github:
 
 ``` r
-devtools::install_github("SchoenbergA/CENITH@master",build_vignettes = TRUE)
+# current version
+devtools::install_github("SchoenbergA/CENITH")
+
+# install vignette for R-help (could take some time)
+devtools::install_github("SchoenbergA/CENITH",build_vignettes=TRUE)
 ```
