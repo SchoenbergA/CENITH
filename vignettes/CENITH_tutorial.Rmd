@@ -303,7 +303,7 @@ mapview(chm)+checkBestSeg+vp
 
 
 ```
-The four trees in the middle are well segmented BUT like before, the shrub in the top right does not look very well. Further there are some small "features" at the top which are estimated to be stones or artifacts in the CHM. With this result we can see, that testing some 'MIN' parameters could help to reduce the small "features". Let's test if tuning the 'filter' paramter will help to smooth the shrubs.
+The four trees in the middle are well segmented BUT like before, the shrub in the top right does not look very well. Further there are some small "features" at the top which are estimated to be stones or artifacts in the CHM. With this result we can see, that testing some 'MIN' parameters could help to reduce the small "features". Let's test if tuning the 'filter' parameter will help to smooth the shrubs.
 
 Thus let's run 'BestSegVal' again with 'a','b' of the best result and for fine tuning with 'MIN' and 'filter'. For MIN let's orientate ourselves on the small "features" and for the filter parameter let's select small MovingWindows of 3 and 5 (due to the small extent of the raster). 
 
